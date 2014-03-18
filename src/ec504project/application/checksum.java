@@ -37,5 +37,15 @@ public class checksum {
 		}
 		return null;
 	}
+	
+	public static boolean verify_checksum(String Check1,String Check2){
+		boolean result = false;
+		int compare;
+		
+		compare = Check1.compareTo(Check2);
+		if (compare == 0) result = true;
+		
+		return result;
+	}
 
 }
