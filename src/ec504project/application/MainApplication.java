@@ -1,7 +1,5 @@
 package ec504project.application;
 
-
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,8 +13,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
-
 
 public class MainApplication {
 	private static int destPort = 8888;
@@ -47,23 +43,12 @@ public class MainApplication {
 			return;
 		}
 		
-		//Adds some delay to test timer function
-		try {
-			TimeUnit.SECONDS.sleep(3);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		timer.stop();
 		
 		//Check to see if server is listening
 		if (serverListening(ipAddress,destPort)){
 			//server is listening
 			try {
 				Socket localSocket = new Socket(ipAddress, destPort);
-		        		
-				
 				
 				//send outgoing file
 				SendFile(inputFile,localSocket);
@@ -91,17 +76,16 @@ public class MainApplication {
 
 				clientSocket = listenSocket.accept();//this is a blocking call
 				//The accept method waits until a client starts up and requests a connection.
-
 				
                 //write incoming file
 				System.out.println("connection accepted");
 				
 				ReceiveFile(clientSocket);
 				
-
 				
 				listenSocket.close();
 				clientSocket.close();
+				
 			}
 			catch(IOException e) {
 				System.out.println("Listen :"+e.getMessage());
@@ -109,6 +93,8 @@ public class MainApplication {
 
 		}
 				
+
+		timer.stop();
 		
 		System.out.println("Valid parameters passed!");
 		System.out.println("Input File:\t" + inputFile.getPath());
@@ -116,6 +102,7 @@ public class MainApplication {
 		timer.prettyPrintTime();
 		return;
 	}
+	
 	private static void SendFile(File inputFile,Socket clientSocket){
 		try {
 			
@@ -125,7 +112,10 @@ public class MainApplication {
 			String inputString;
 			
 			//Send filename
-			out.print(inputFile.getName()+'\n');
+			out.println(inputFile.getName());
+			
+			String md5Hash = checksum.calc_checksum(inputFile.getAbsolutePath());
+			out.println(md5Hash);
 			
 			//Send file
 			while ((inputString = in.readLine()) != null) {
@@ -145,9 +135,10 @@ public class MainApplication {
 			BufferedReader in = new BufferedReader(
 	                new InputStreamReader(clientSocket.getInputStream()));
 			
-			int fileSize =0;
+			int fileSize = 0;
 			//get filename
 			String filename = in.readLine();
+			String md5HashIn = in.readLine();
 			
 			//Write to file
 			FileOutputStream fos = new FileOutputStream(filename);
@@ -161,11 +152,20 @@ public class MainApplication {
 			System.out.println(filename+" File written.");
 			System.out.println("File size = "+fileSize+" bytes.");
 			fos.close();
+			String md5HashComputed = checksum.calc_checksum(".\\" + filename);
+			
+			if(md5HashComputed.equals(md5HashIn)) {
+				System.out.println("File verification passed!");
+			}
+			else {
+				System.out.println("File verification failed!");
+			}
 			
 		} catch (IOException ex) {
 			System.out.println("Error in ReceiveFile IO:"+ex.getMessage());
 		}
 	}
+	
 	private static boolean serverListening(InetAddress host, int port)
 	{
 		Socket s = new Socket();
