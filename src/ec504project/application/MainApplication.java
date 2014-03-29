@@ -45,13 +45,13 @@ public class MainApplication {
 		
 		
 		//Check to see if server is listening
-		if (serverListening(ipAddress,destPort)){
+		if (SendReceive.serverListening(ipAddress,destPort)){
 			//server is listening
 			try {
 				Socket localSocket = new Socket(ipAddress, destPort);
 				
 				//send outgoing file
-				SendFile(inputFile,localSocket);
+				SendReceive.SendFile(inputFile,localSocket);
 				
 				
 				localSocket.close();
@@ -80,7 +80,7 @@ public class MainApplication {
                 //write incoming file
 				System.out.println("connection accepted");
 				
-				ReceiveFile(clientSocket);
+				SendReceive.ReceiveFile(clientSocket);
 				
 				
 				listenSocket.close();
@@ -102,88 +102,4 @@ public class MainApplication {
 		timer.prettyPrintTime();
 		return;
 	}
-	
-	private static void SendFile(File inputFile,Socket clientSocket){
-		try {
-			
-			InputStream inStream = new FileInputStream(inputFile);  
-			PrintWriter out =  new PrintWriter(clientSocket.getOutputStream(), true);
-			BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
-			String inputString;
-			
-			//Send filename
-			out.println(inputFile.getName());
-			
-			String md5Hash = checksum.calc_checksum(inputFile.getAbsolutePath());
-			out.println(md5Hash);
-			
-			//Send file
-			while ((inputString = in.readLine()) != null) {
-			     out.println(inputString);
-			}
-            in.close();
-
-		} catch (IOException ex) {
-			System.out.println("Error in SendFile IO:"+ex.getMessage());
-		}
-	}
-	
-	private static void ReceiveFile(Socket clientSocket){
-
-		try {
-
-			BufferedReader in = new BufferedReader(
-	                new InputStreamReader(clientSocket.getInputStream()));
-			
-			int fileSize = 0;
-			//get filename
-			String filename = in.readLine();
-			String md5HashIn = in.readLine();
-			
-			//Write to file
-			FileOutputStream fos = new FileOutputStream(filename);
-			
-			String fileString;
-			while((fileString=in.readLine()) !=null){
-				fileSize +=fileString.length();
-				fos.write(fileString.getBytes(), 0, fileString.length());
-			}
-			
-			System.out.println(filename+" File written.");
-			System.out.println("File size = "+fileSize+" bytes.");
-			fos.close();
-			String md5HashComputed = checksum.calc_checksum(".\\" + filename);
-			
-			if(md5HashComputed.equals(md5HashIn)) {
-				System.out.println("File verification passed!");
-			}
-			else {
-				System.out.println("File verification failed!");
-			}
-			
-		} catch (IOException ex) {
-			System.out.println("Error in ReceiveFile IO:"+ex.getMessage());
-		}
-	}
-	
-	private static boolean serverListening(InetAddress host, int port)
-	{
-		Socket s = new Socket();
-		
-	    try
-	    {    	
-	    	s.connect(new InetSocketAddress(host, port), 1000);
-	        return true;
-	    }
-	    catch (Exception e)
-	    {
-	        return false;
-	    }
-	    finally
-	    {
-	        if(s != null)
-	            try {s.close();}
-	            catch(Exception e){}
-	    }
-	}	
 }
