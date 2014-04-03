@@ -51,12 +51,12 @@ public class SendReceive {
 			String md5HashIn = in.readLine();
 			
 			//Write to file
-			FileOutputStream fos = new FileOutputStream(filename);
+			PrintWriter fos = new PrintWriter(filename);
 			
 			String fileString;
 			while((fileString=in.readLine()) !=null){
 				fileSize +=fileString.length();
-				fos.write(fileString.getBytes(), 0, fileString.length());
+				fos.println(fileString);
 			}
 			
 			System.out.println(filename+" File written.");
