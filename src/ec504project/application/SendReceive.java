@@ -50,7 +50,6 @@ public class SendReceive {
 			BufferedReader in = new BufferedReader(
 	                new InputStreamReader(clientSocket.getInputStream()));
 			
-			
 			String md5HashIn = in.readLine();
 			fileSize += md5HashIn.length();
 			
@@ -80,7 +79,7 @@ public class SendReceive {
 				String fileString;
 				while((fileString=in.readLine()) !=null){
 					fileSize += fileString.length();
-					fos.write(fileString.getBytes(), 0, fileString.length());
+					fos.println(fileString);
 				}
 				
 				fos.close();
