@@ -38,7 +38,7 @@ public class Checksum {
 		return null;
 	}
 	
-	public static boolean verify_checksum(String check1, String check2){
+	public static boolean verifyChecksum(String check1, String check2){
 		boolean result = false;
 		int compare;
 		

@@ -13,7 +13,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class SendReceive {
-	public static void sendFile(File inputFile,Socket clientSocket){
+	public static long sendFile(File inputFile,Socket clientSocket){
+		long bandwidth = 0;
 		try {
 			
 			InputStream inStream = new FileInputStream(inputFile);  
@@ -21,59 +22,83 @@ public class SendReceive {
 			BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
 			String inputString;
 			
-			//Send filename
-			out.println(inputFile.getName());
-			
 			String md5Hash = Checksum.calcChecksum(inputFile.getAbsolutePath());
+			bandwidth += md5Hash.length();
 			out.println(md5Hash);
-			
-			//Send file
+
+			/*
+			 * Gerardo 4/2/14 - We shouldn't be dependent on newline characters. This causes problems with Windows/Unix setups
+			 * Also, consider the case where we have an n byte ASCII file without a single newline. What does this do to our running time?
+			 * Conersely what happens if we have an n byte file of just newline characters?
+			 */
 			while ((inputString = in.readLine()) != null) {
-			     out.println(inputString);
+			    out.println(inputString);
+				bandwidth += inputString.length();
 			}
             in.close();
 
 		} catch (IOException ex) {
 			System.out.println("Error in SendFile IO:"+ex.getMessage());
 		}
+		return bandwidth;
 	}
 	
-	public static void receiveFile(Socket clientSocket){
-
+	public static long receiveFile(File inputFile, Socket clientSocket){
+		long fileSize = 0;
+		
 		try {
-
 			BufferedReader in = new BufferedReader(
 	                new InputStreamReader(clientSocket.getInputStream()));
 			
-			int fileSize = 0;
-			//get filename
-			String filename = in.readLine();
+			
 			String md5HashIn = in.readLine();
+			fileSize += md5HashIn.length();
 			
-			//Write to file
-			FileOutputStream fos = new FileOutputStream(filename);
+			String md5HashLocal = Checksum.calcChecksum(inputFile.getAbsolutePath());
+			System.out.println("Local Hash:\t" + md5HashLocal);
+			System.out.println("Received Hash:\t" + md5HashIn);
 			
-			String fileString;
-			while((fileString=in.readLine()) !=null){
-				fileSize +=fileString.length();
-				fos.write(fileString.getBytes(), 0, fileString.length());
-			}
-			
-			System.out.println(filename+" File written.");
-			System.out.println("File size = "+fileSize+" bytes.");
-			fos.close();
-			String md5HashComputed = Checksum.calcChecksum(".\\" + filename);
-			
-			if(md5HashComputed.equals(md5HashIn)) {
-				System.out.println("File verification passed!");
+			if(Checksum.verifyChecksum(md5HashIn, md5HashLocal)) {
+				//The files are equivalent, our work here is done
+				System.out.println("No reconciliation necessary");
 			}
 			else {
-				System.out.println("File verification failed!");
+				/*
+				 * We must now reconcile the file somehow.
+				 * For the naive implementation, this means deleting the local file and receiving the file via TCP/IP
+				 */
+				System.out.println("Initial hash check failed, reconciling files");
+				
+				//Naive Reconciler Start - Delete this code in the future
+				inputFile.delete();
+				
+				FileOutputStream fos = new FileOutputStream(inputFile);
+				
+				/*
+				 * Gerardo 4/2/14 - Do we account for the size of newline and unprintable characters in the file if we track bndwidth in this manner?
+				 */
+				String fileString;
+				while((fileString=in.readLine()) !=null){
+					fileSize += fileString.length();
+					fos.write(fileString.getBytes(), 0, fileString.length());
+				}
+				
+				fos.close();
+				//Naive Reconciler End
+
+				md5HashLocal = Checksum.calcChecksum(inputFile.getAbsolutePath());
+				System.out.println("Reconciled Hash:\t" + md5HashLocal);
+				if(md5HashLocal.equals(md5HashIn)) {
+					System.out.println("File verification passed!");
+				}
+				else {
+					System.out.println("File verification failed!");
+				}
 			}
-			
 		} catch (IOException ex) {
 			System.out.println("Error in ReceiveFile IO:"+ex.getMessage());
 		}
+		return fileSize;
 	}
 	
 	public static boolean serverListening(InetAddress host, int port)

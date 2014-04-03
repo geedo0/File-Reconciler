@@ -13,11 +13,13 @@ public class MainApplication {
 	private static InetAddress ipAddress;
 
 	public static void main(String[] args) {
-		Timer timer = new Timer(true);
+		Timer timer = new Timer(false);
+		long bandwidthUsed = 0;
 		/*
 		 * Process and verify input arguments
 		 * Usage: reconcile -file [file1] -to [IP address of computer 2]
 		 */
+		
 		if(!((args.length == 4) && (args[0].contentEquals("-file") || args[2].contentEquals("-to")))) {
 			System.out.println("Error, invalid parameters");
 			System.out.println("Usage: reconcile -file [file1] -to [IP address of computer 2]");
@@ -36,18 +38,15 @@ public class MainApplication {
 			return;
 		}
 		
-		//Hash the input file and see if we even have to do any work
-		String aggregateHash = Checksum.calcChecksum(inputFile.getAbsolutePath());
+		System.out.println("Input File:\t" + inputFile.getPath());
 		
-		//Check to see if server is listening
-		if (SendReceive.serverListening(ipAddress,destPort)){
-			//server is listening
+		if (SendReceive.serverListening(ipAddress, destPort)){
+			System.out.println("Connected IP Address:\t" + ipAddress.toString());
+			timer.start();
 			try {
 				Socket localSocket = new Socket(ipAddress, destPort);
 				
-				//send outgoing file
-				SendReceive.sendFile(inputFile,localSocket);
-				
+				bandwidthUsed = SendReceive.sendFile(inputFile, localSocket);
 				
 				localSocket.close();
 				
@@ -64,19 +63,17 @@ public class MainApplication {
 				//start listening and wait for connection    
 				ServerSocket listenSocket = new ServerSocket(destPort);
 
-				System.out.println("server start listening... ... ...");
-
+				System.out.println("Server started, awaiting connection...");
 				Socket clientSocket = listenSocket.accept();//First connection is a dummy connection
                 
 
 				clientSocket = listenSocket.accept();//this is a blocking call
+				timer.start();
+
+				System.out.println("Connected IP Address:\t" + clientSocket.getInetAddress().getHostAddress());
 				//The accept method waits until a client starts up and requests a connection.
 				
-                //write incoming file
-				System.out.println("connection accepted");
-				
-				SendReceive.receiveFile(clientSocket);
-				
+				bandwidthUsed = SendReceive.receiveFile(inputFile, clientSocket);
 				
 				listenSocket.close();
 				clientSocket.close();
@@ -91,9 +88,7 @@ public class MainApplication {
 
 		timer.stop();
 		
-		System.out.println("Valid parameters passed!");
-		System.out.println("Input File:\t" + inputFile.getPath());
-		System.out.println("IP Address:\t" + ipAddress.toString());
+		System.out.println("Bandwidth used:\t" + bandwidthUsed + " bytes");
 		timer.prettyPrintTime();
 		return;
 	}
