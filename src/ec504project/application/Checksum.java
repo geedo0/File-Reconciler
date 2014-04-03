@@ -6,9 +6,9 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class checksum {
+public class Checksum {
 	
-	public static String calc_checksum(String filepath){
+	public static String calcChecksum(String filepath){
 		try{
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			FileInputStream finstream = new FileInputStream(filepath); 
@@ -38,11 +38,11 @@ public class checksum {
 		return null;
 	}
 	
-	public static boolean verify_checksum(String Check1,String Check2){
+	public static boolean verify_checksum(String check1, String check2){
 		boolean result = false;
 		int compare;
 		
-		compare = Check1.compareTo(Check2);
+		compare = check1.compareTo(check2);
 		if (compare == 0) result = true;
 		
 		return result;

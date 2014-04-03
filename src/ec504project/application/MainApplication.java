@@ -1,15 +1,8 @@
 package ec504project.application;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -43,6 +36,8 @@ public class MainApplication {
 			return;
 		}
 		
+		//Hash the input file and see if we even have to do any work
+		String aggregateHash = Checksum.calcChecksum(inputFile.getAbsolutePath());
 		
 		//Check to see if server is listening
 		if (SendReceive.serverListening(ipAddress,destPort)){
@@ -51,7 +46,7 @@ public class MainApplication {
 				Socket localSocket = new Socket(ipAddress, destPort);
 				
 				//send outgoing file
-				SendReceive.SendFile(inputFile,localSocket);
+				SendReceive.sendFile(inputFile,localSocket);
 				
 				
 				localSocket.close();
@@ -80,7 +75,7 @@ public class MainApplication {
                 //write incoming file
 				System.out.println("connection accepted");
 				
-				SendReceive.ReceiveFile(clientSocket);
+				SendReceive.receiveFile(clientSocket);
 				
 				
 				listenSocket.close();

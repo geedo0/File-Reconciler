@@ -13,7 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class SendReceive {
-	public static void SendFile(File inputFile,Socket clientSocket){
+	public static void sendFile(File inputFile,Socket clientSocket){
 		try {
 			
 			InputStream inStream = new FileInputStream(inputFile);  
@@ -24,7 +24,7 @@ public class SendReceive {
 			//Send filename
 			out.println(inputFile.getName());
 			
-			String md5Hash = checksum.calc_checksum(inputFile.getAbsolutePath());
+			String md5Hash = Checksum.calcChecksum(inputFile.getAbsolutePath());
 			out.println(md5Hash);
 			
 			//Send file
@@ -38,7 +38,7 @@ public class SendReceive {
 		}
 	}
 	
-	public static void ReceiveFile(Socket clientSocket){
+	public static void receiveFile(Socket clientSocket){
 
 		try {
 
@@ -62,7 +62,7 @@ public class SendReceive {
 			System.out.println(filename+" File written.");
 			System.out.println("File size = "+fileSize+" bytes.");
 			fos.close();
-			String md5HashComputed = checksum.calc_checksum(".\\" + filename);
+			String md5HashComputed = Checksum.calcChecksum(".\\" + filename);
 			
 			if(md5HashComputed.equals(md5HashIn)) {
 				System.out.println("File verification passed!");
