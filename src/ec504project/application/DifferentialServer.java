@@ -58,6 +58,11 @@ public class DifferentialServer {
 	public DifferentialServer(File f, int parts) {
 		fil = f;
 		numBlobs = parts;
+		/*
+		 * Gerardo 4/5/14: We are dependent on the existence of new line characters and the data being roughly delimited by them.
+		 * What happens the BufferedReader.readLine method when the first line is a 100MB ASCII string?
+		 * What happens when the data is binary?
+		 */
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			StringBuilder sb = new StringBuilder();
 			String line = br.readLine();
@@ -88,11 +93,27 @@ public class DifferentialServer {
 	}
 
 	private void compareCapsules() {
-		if (myCapsule.getLength() != theirCapsule.getLength()) {//The strings are off by n<5 characters, probably need new hashes
-			//still should try to compare hashes assuming the difference is on th end of the file
+		if (myCapsule.getLength() != theirCapsule.getLength()) {
+			/*
+			 * Gerardo 4/5/14: This is not a safe assumption, I think we need to rethink our strategy for insertions and deletions.
+			 * It can take a rather large amount of time for us to determine the actual location of the insertion/deletion. Also, what happens,
+			 * when they are spread out evenly across the file? I can insert at the beginning, in the middle, and delete at the end and really
+			 * screw things up. One suggestion would be to use a divide and conquer strategy, but that's still prone to uniformly distributed
+			 * modifications. Ideally we need to take advantage of the fact that we know how many changes there will be relative to the file size
+			 * and take that into account when splitting.
+			 */
+			
+			//The strings are off by n<5 characters, probably need new hashes
+			//still should try to compare hashes assuming the difference is on the end of the file
 			//if the difference is at the beginning, we need a new method or need to compute hashes with character offsets 
 		}
-		else {//same length, try comparing the hashes
+		else {
+			/*
+			 * Gerardo 4/5/14: What happens when I insert and delete the same number of characters? This algorithm will end up with terrible performance.
+			 */
+			
+			//same length, try comparing the hashes
+			//Why not a Boolean array? Although they have the same memory footprint it's just better practice
 			int[] nonMatchingBlobs = new int[numBlobs];// 1 means the blobs didnt match
 			Arrays.fill(nonMatchingBlobs, 0);
 			String[] myHashes = myCapsule.getHashes();
