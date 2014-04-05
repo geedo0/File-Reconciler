@@ -113,15 +113,14 @@ public class DifferentialServer {
 			 */
 			
 			//same length, try comparing the hashes
-			//Why not a Boolean array? Although they have the same memory footprint it's just better practice
-			int[] nonMatchingBlobs = new int[numBlobs];// 1 means the blobs didnt match
-			Arrays.fill(nonMatchingBlobs, 0);
+			boolean[] nonMatchingBlobs = new boolean[numBlobs];
+			Arrays.fill(nonMatchingBlobs, false);
 			String[] myHashes = myCapsule.getHashes();
 			String[] theirHashes = myCapsule.getHashes();
 			int count = 0;
 			for (int i = 0; i < numBlobs; i++) {
 				if (!myHashes[i].equals(theirHashes[i])) {
-					nonMatchingBlobs[i] = 1;
+					nonMatchingBlobs[i] = true;
 					count++;
 				}
 			}
