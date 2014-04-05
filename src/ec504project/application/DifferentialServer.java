@@ -18,15 +18,13 @@ public class DifferentialServer {
 	Capsule				myCapsule;		//contains a summarized version of the string
 	Capsule				theirCapsule;
 
-
 	public int getFileLength(File f) {
 		int size = 0;
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-			int chr = br.read();
-
+			int chr = 0;
 			while (chr != -1) {
+				chr = br.read();
 				size++;
-				br.read();
 			}
 		}
 		catch (FileNotFoundException e) {
@@ -38,7 +36,7 @@ public class DifferentialServer {
 			e.printStackTrace();
 		}
 
-		return size;
+		return size - 1;
 	}
 
 	public String getHash(String sb) throws NoSuchAlgorithmException {
