@@ -71,7 +71,7 @@ public class SendReceive {
 				//Naive Reconciler Start - Delete this code in the future
 				inputFile.delete();
 				
-				FileOutputStream fos = new FileOutputStream(inputFile);
+				PrintWriter fos = new PrintWriter(inputFile);
 				
 				/*
 				 * Gerardo 4/2/14 - Do we account for the size of newline and unprintable characters in the file if we track bndwidth in this manner?
