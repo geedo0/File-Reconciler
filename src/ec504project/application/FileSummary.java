@@ -4,13 +4,15 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class FileSummary {
 	public ArrayList<byte[]> fileBlocks;
-	public ArrayList<HashObject> blockHashes;
+	public HashMap<Integer, HashObject> blockHashes;
 	public int blockSize;
 	
 	public FileSummary(File input) {
@@ -19,7 +21,7 @@ public class FileSummary {
 	}
 	
 	public class HashObject {
-		public int weakHash;		//Rolling Adler-32 hash
+		public int blockIndex;
 		public String strongHash;	//MD5 hash
 	}
 	
@@ -76,25 +78,32 @@ public class FileSummary {
 		return blocks;
 	}
 	
-	private ArrayList<HashObject> computeHashes(ArrayList<byte[]> blocks) {
-		ArrayList<HashObject> hashes = new ArrayList<HashObject>(blocks.size());
+	private HashMap<Integer, HashObject> computeHashes(ArrayList<byte[]> blocks) {
+		HashMap<Integer, HashObject> hashes = new HashMap<Integer, HashObject>();
 		HashObject newHash;
+		int weakHash;
+		for(int i = 0; i < blocks.size(); i++) {
+			
+			newHash = new HashObject();
+			newHash.blockIndex = i;
+			newHash.strongHash = computeStrongHash(blocks.get(i));
+			weakHash = computeAdler32(blocks.get(i), blockSize);
+			hashes.put(weakHash, newHash);
+		}
+		return hashes;
+	}
+	
+	public static String computeStrongHash(byte[] data) {
+		MessageDigest md;
 		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-		
-			for(int i = 0; i < blocks.size(); i++) {
-				md.reset();
-				md.update(blocks.get(i));
-				
-				newHash = new HashObject();
-				newHash.weakHash = computeAdler32(blocks.get(i), blockSize);
-				newHash.strongHash = md.digest().toString();;
-				hashes.add(newHash);
-			}
+			md = MessageDigest.getInstance("MD5");
+			md.update(data);
+			return new BigInteger(1, md.digest()).toString(16);
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return hashes;
+		return "ERROR HASH";
 	}
+	
 }
