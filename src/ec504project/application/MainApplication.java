@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 public class MainApplication {
 	private static int destPort = 8888;
@@ -18,40 +19,50 @@ public class MainApplication {
 		long bandwidthUsed = 0;
 		
 		parseArguments(args);
+		//Generate the File List
 		
-		//The connection is not yet active, become the receiver and await further instructions.
+		//Connection is active, become the SENDER(client) and initiate reconciliation.
 		if (SendReceive.serverListening(ipAddress, destPort)){
+			System.out.println("Sender process started.");
 			System.out.println("Connected IP Address:\t" + ipAddress.toString());
 			timer.start();
 			try {
 				Socket localSocket = new Socket(ipAddress, destPort);
 				
+				//Send file list and wait
+				
+				//Perform block matching on file list hashes
+				//Send reconciliation instructions + data and wait
+				
+				//Receive OK status and terminate
+				
 				bandwidthUsed = SendReceive.sendFile(inputFile, localSocket);
 				
 				localSocket.close();
-				
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
-		}else{
-			//server is not listening
-			//become server
+		}
+		else {
+			//The connection is not yet active, become the RECEIVE(Server) and await further instructions.
 			try{
-				//start listening and wait for connection    
 				ServerSocket listenSocket = new ServerSocket(destPort);
-
-				System.out.println("Server started, awaiting connection...");
-				Socket clientSocket = listenSocket.accept();//First connection is a dummy connection
-                
-
-				clientSocket = listenSocket.accept();//this is a blocking call
+				System.out.println("Receiver process started, awaiting connection...");
+				//First connection is a dummy connection
+				Socket clientSocket = listenSocket.accept();
+				
+				clientSocket = listenSocket.accept();
 				timer.start();
-
 				System.out.println("Connected IP Address:\t" + clientSocket.getInetAddress().getHostAddress());
-				//The accept method waits until a client starts up and requests a connection.
+				
+				//Receive file list
+				//Compare file list
+				//Generate hashes for non-matching files
+				//Send hashes and wait
+				
+				//Reconcile files based on steps
+				//Verify hashes
+				//Send ok signal and terminate
 				
 				bandwidthUsed = SendReceive.receiveFile(inputFile, clientSocket);
 				
@@ -64,14 +75,8 @@ public class MainApplication {
 			}			
 
 		}
-				
-
-		timer.stop();
-		
-		System.out.println("Bandwidth used:\t" + bandwidthUsed + " bytes");
-		timer.prettyPrintTime();
-		return;
-	}
+	return;
+}
 
 	private static void parseArguments(String[] args) {
 		/*
