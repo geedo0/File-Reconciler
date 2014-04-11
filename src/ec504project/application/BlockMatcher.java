@@ -61,7 +61,7 @@ public class BlockMatcher {
 		
 		int lastBlockIndex = (int) (data.length - (data.length % blockSize));
 		
-		for(currentOffset = 0; currentOffset < lastBlockIndex; currentOffset++) {
+		for(currentOffset = 0; currentOffset < data.length - intBlockSize; currentOffset++) {
 			match = receiverHashes.get(currentCRC);
 			if(match != null) {
 				localHash = FileSummary.computeStrongHash(Arrays.copyOfRange(data, currentOffset, currentOffset + intBlockSize));
@@ -95,11 +95,13 @@ public class BlockMatcher {
 				currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC);
 			}
 		}
+		//Add in the remaining data
+		literals.addAll(bytesToArrayList(Arrays.copyOfRange(data, currentOffset, data.length)));		
 		
 		//Because these blocks are trivial in size, I really don't care to spend the time trying to match the end piece of the file so let's just send over a carbon copy.
 		newStep = new ReconcileStep();
 		newStep.step = Instruction.insertData;
-		newStep.data = bytesToArrayList(Arrays.copyOfRange(data, lastBlockIndex, data.length));
+		newStep.data = literals;
 		steps.add(newStep);		
 		
 		return steps;
