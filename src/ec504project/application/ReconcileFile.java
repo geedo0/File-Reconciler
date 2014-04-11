@@ -9,11 +9,11 @@ import ec504project.application.BlockMatcher.ReconcileStep;
 
 public class ReconcileFile {
 	
-	public static File regenerateFile(ArrayList<ReconcileStep> steps, ArrayList<byte[]> blocks) {
-		File tempFile = new File("v3ry.un1qu3f1l3n4m3");
+	public static void regenerateFile(ArrayList<ReconcileStep> steps, ArrayList<byte[]> blocks, File out, String verifyHash) {
 		try {
-			tempFile.createNewFile();
-			FileOutputStream fos = new FileOutputStream(tempFile);
+			out.delete();
+			out.createNewFile();
+			FileOutputStream fos = new FileOutputStream(out);
 			
 			ReconcileStep currentStep;
 			
@@ -35,8 +35,13 @@ public class ReconcileFile {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return tempFile;
-		
+		String newHash = Checksum.calcChecksum(out.getAbsolutePath());
+		if(newHash.equals(verifyHash)) {
+			System.out.println("Successfully reconciled " + out.getName());
+		}
+		else {
+			System.out.println("We have failed.");
+		}
 	}
 	
 	private static byte[] arrayListToByteArray(ArrayList<Byte> input) {
