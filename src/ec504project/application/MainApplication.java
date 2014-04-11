@@ -6,20 +6,48 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainApplication {
 	private static int destPort = 8888;
 	
 	private static InetAddress ipAddress;
-	private static File inputFile;
+	private static File inputPath;
 
 	public static void main(String[] args) {
-		Timer timer = new Timer(false);
+		Timer timer = new Timer(true);
 		long bandwidthUsed = 0;
 		
 		parseArguments(args);
-		//Generate the File List
+		
+		/***********************
+		* File Reconciler DEMO *
+		***********************/		
+		//Create File Lists
+		FileObj receiverFileList = new FileObj(inputPath);
+		FileObj senderFileList = new FileObj(new File(".\\SenderTest"));
+		
+		//Create Blocks and Hashes
+		ArrayList<FileSummary> fileSummaries = new ArrayList<FileSummary>();
+		for(int i = 0; i < receiverFileList.fileList.size(); i++) {
+			fileSummaries.add(new FileSummary(receiverFileList.fileList.get(i).filePath));
+		}
+		
+		//Match blocks
+		ArrayList<BlockMatcher> blockMatchers = new ArrayList<BlockMatcher>();
+		for(int i = 0; i < fileSummaries.size(); i++) {
+			blockMatchers.add(new BlockMatcher(senderFileList.fileList.get(i).filePath, fileSummaries.get(i).blockHashes, fileSummaries.get(i).blockSize));
+		}
+		
+		//Regenerate the files
+		for(int i = 0; i < blockMatchers.size(); i++) {
+			ReconcileFile.regenerateFile(blockMatchers.get(i).receiverSteps, fileSummaries.get(i).fileBlocks, receiverFileList.fileList.get(i).filePath, senderFileList.fileList.get(i).fileHash);
+		}
+		timer.stop();
+		timer.prettyPrintTime();
+		
+		System.exit(0);
 		
 		//Connection is active, become the SENDER(client) and initiate reconciliation.
 		if (SendReceive.serverListening(ipAddress, destPort)){
@@ -36,7 +64,7 @@ public class MainApplication {
 				
 				//Receive OK status and terminate
 				
-				bandwidthUsed = SendReceive.sendFile(inputFile, localSocket);
+				bandwidthUsed = SendReceive.sendFile(inputPath, localSocket);
 				
 				localSocket.close();
 			} catch (IOException e) {
@@ -64,7 +92,7 @@ public class MainApplication {
 				//Verify hashes
 				//Send ok signal and terminate
 				
-				bandwidthUsed = SendReceive.receiveFile(inputFile, clientSocket);
+				bandwidthUsed = SendReceive.receiveFile(inputPath, clientSocket);
 				
 				listenSocket.close();
 				clientSocket.close();
@@ -89,8 +117,8 @@ public class MainApplication {
 			System.out.println("Usage: reconcile -path [path] -to [IP address of other computer]");
 			System.exit(-1);
 		}
-		inputFile = new File(args[1]);
-		if(!inputFile.isDirectory()) {
+		inputPath = new File(args[1]);
+		if(!inputPath.isDirectory()) {
 			System.out.println("Error: Invalid input path:\t" + args[1] + "\nCheck that you have passed a directory and that it exists.");
 			System.exit(-1);
 		}
@@ -102,6 +130,6 @@ public class MainApplication {
 			System.exit(-1);
 		}
 		
-		System.out.println("Reconciliation Directory:\t" + inputFile.getPath());
+		System.out.println("Reconciliation Directory:\t" + inputPath.getPath());
 	}
 }
