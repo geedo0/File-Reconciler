@@ -6,19 +6,18 @@ import java.util.Collections;
 
 public class FileObj {
 
-	class fileListElement {	
-		public int index;
+	class FileListElement {	
 		public File filePath;
 		public String fileHash;
 	}
 	
-	ArrayList<fileListElement> fileList;
+	ArrayList<FileListElement> fileList;
 	
 	public FileObj(File path) {
 		this.fileList = generateFileList(path);
 	}
 	
-	public ArrayList<Integer> generateDiffList(ArrayList<fileListElement> senderList) {
+	public ArrayList<Integer> generateDiffList(ArrayList<FileListElement> senderList) {
 		ArrayList<Integer> DiffList = new ArrayList<Integer>();
 		Collections.sort(senderList, new fileComparator());
 		Collections.sort(fileList, new fileComparator());
@@ -40,15 +39,15 @@ public class FileObj {
 		return DiffList; 
 	}
 	
-	private ArrayList<fileListElement> generateFileList(File path) {
-		ArrayList<fileListElement> list = new ArrayList<fileListElement>();
-		fileListElement listElement;
+	private ArrayList<FileListElement> generateFileList(File path) {
+		ArrayList<FileListElement> list = new ArrayList<FileListElement>();
+		FileListElement listElement;
 		
 		File[] filesInPath = path.listFiles();
 		
 		for(int i = 0; i < filesInPath.length; i++)
 		{
-			listElement = new fileListElement();
+			listElement = new FileListElement();
 			listElement.fileHash = Checksum.calcChecksum(filesInPath[i].getAbsolutePath());
 			listElement.filePath = filesInPath[i];
 			
