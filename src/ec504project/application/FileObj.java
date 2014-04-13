@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class FileObj {
-	class FileListElement {	
-		public File filePath;
-		public String fileHash;
-	}
 	
 	ArrayList<FileListElement> fileList;
 	
@@ -19,8 +15,8 @@ public class FileObj {
 	
 	public ArrayList<Integer> generateDiffList(ArrayList<FileListElement> senderList) {
 		ArrayList<Integer> DiffList = new ArrayList<Integer>();
-		Collections.sort(senderList, new fileComparator());
-		Collections.sort(fileList, new fileComparator());
+		//Collections.sort(senderList, new fileComparator());
+		//Collections.sort(fileList, new fileComparator());
 		
 		for(int ii=0; ii < fileList.size(); ii++){
 			if(senderList.get(ii).filePath.getName().compareTo(fileList.get(ii).filePath.getName()) == 0){

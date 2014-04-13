@@ -13,7 +13,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import ec504project.application.FileObj.FileListElement;
 
 
 
@@ -51,7 +50,7 @@ public class SendReceive {
 		
 	}
 
-	public static  ArrayList<FileListElement> receiverReceive(){
+	public static  ArrayList<FileListElement> receiverReceiveList(){
         ArrayList<FileListElement> receivedList = new ArrayList<FileListElement>();
 		try {
 			if (serverSocket == null){
@@ -79,12 +78,12 @@ public class SendReceive {
 	}
 
 
-	public static void receiverSend(ArrayList<FileListElement> sendList){
+	public static void receiverSendHashes(ArrayList<SenderData> sendHash){
 		try {
 			DataOutputStream os = new DataOutputStream(new BufferedOutputStream(server.getOutputStream()));
 			ObjectOutputStream out = new ObjectOutputStream(os);
 
-			out.writeObject(sendList);
+			out.writeObject(sendHash);
 			out.writeInt(os.size()+4);//Send the length that we are sending including the integer.
 			out.flush();
 			receiverBandwidth = receiverBandwidth + os.size();
@@ -97,14 +96,41 @@ public class SendReceive {
 		}		
 
 	}
+	
 
+	public static  ArrayList<ArrayList<ReconcileStep>> receiverReceiveSteps(){
+		ArrayList<ArrayList<ReconcileStep>> receivedList = new ArrayList<ArrayList<ReconcileStep>>();
+		try {
+			if (serverSocket == null){
+				serverSocket = new ServerSocket(destPort);
+			}
 
-	public static  ArrayList<FileListElement> senderReceive(){
-		ArrayList<FileListElement> receivedList = new ArrayList<FileListElement>();
+			server = serverSocket.accept(); //this is a blocking call
+			ObjectInputStream objectInput = new ObjectInputStream(new BufferedInputStream(server.getInputStream()));
+
+			
+			Object object = objectInput.readObject();
+			receiverBandwidth = receiverBandwidth + objectInput.readInt();
+			    
+                receivedList =  (ArrayList<ArrayList<ReconcileStep>>) object;        
+		} catch (IOException e) {
+			System.out.println("Error during serverReceive.");
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			System.out.println("Error with the ArrayList in serverReceive");
+			e.printStackTrace();
+		}
+
+		return receivedList;
+
+	}
+
+	public static  ArrayList<SenderData> senderReceiveHashes(){
+		ArrayList<SenderData> receivedList = new ArrayList<SenderData>();
 		try {
 			ObjectInputStream objectInput = new ObjectInputStream(new BufferedInputStream(client.getInputStream()));
 			Object object = objectInput.readObject();
-            receivedList =  (ArrayList<FileListElement>) object;
+            receivedList =  (ArrayList<SenderData>) object;
 	        senderBandwidth = senderBandwidth + objectInput.readInt();
 			client.close();
 
@@ -122,7 +148,7 @@ public class SendReceive {
 	}
 
 
-	public static void senderSend(ArrayList<FileListElement> sendList, InetAddress ipAddress){
+	public static void senderSendList(ArrayList<FileListElement> sendList, InetAddress ipAddress){
 		try {
 			if ((client == null)||(client.isClosed())){
 				client = new Socket(ipAddress, destPort);
@@ -140,6 +166,26 @@ public class SendReceive {
 		}		
 
 	}
+	
+	public static void senderSendSteps(ArrayList<ArrayList<ReconcileStep>> sendSteps, InetAddress ipAddress) {
+		try {
+			if ((client == null)||(client.isClosed())){
+				client = new Socket(ipAddress, destPort);
+			}
+			DataOutputStream os = new DataOutputStream(new BufferedOutputStream(client.getOutputStream()));
+			ObjectOutputStream out = new ObjectOutputStream(os);
+			out.writeObject(sendSteps);	
+			out.writeInt(os.size()+4);//Send the length that we are sending including the integer.
+			out.flush();
+			senderBandwidth = senderBandwidth + os.size();
+
+		} catch (IOException e) {
+			System.out.println("Error during clientSend.");
+			e.printStackTrace();
+		}		
+		
+		
+	}		
 
 
 	public static boolean receiverListening(InetAddress host)
@@ -161,5 +207,7 @@ public class SendReceive {
 				try {s.close();}
 			catch(Exception e){}
 		}
-	}	
+	}
+
+
 }

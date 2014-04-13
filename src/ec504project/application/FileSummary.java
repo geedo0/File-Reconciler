@@ -20,16 +20,9 @@ public class FileSummary {
 		blockHashes = computeHashes(fileBlocks);
 	}
 	
-	public class HashObject {
-		public int blockIndex;
-		public String strongHash;	//MD5 hash
-	}
+
 	
-	public class SenderData {
-		int fileIndex;
-		int blockSize;
-		HashMap<Integer, HashObject> hashes;
-	}
+
 	
 	private int computeBlockSize(File input) {
 		//Computes optimal block size based on rsync algorithm.

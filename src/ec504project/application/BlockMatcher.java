@@ -7,7 +7,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import ec504project.application.FileSummary.HashObject;
+
 
 public class BlockMatcher {
 	private HashMap<Integer, HashObject> receiverHashes;
@@ -43,11 +43,6 @@ public class BlockMatcher {
 		insertData, insertBlock
 	}
 	
-	public class ReconcileStep {
-		Instruction step;
-		ArrayList<Byte> data = null;
-		int blockIndex = -1;
-	}
 	
 	private ArrayList<ReconcileStep> computeDiff(byte[] data) {
 		ArrayList<ReconcileStep> steps = new ArrayList<ReconcileStep>();
