@@ -1,15 +1,13 @@
 package ec504project.application;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class MainApplication {
-	private static int destPort = 8888;
-	
+
+
 	private static InetAddress ipAddress;
 
 	public static void main(String[] args) {
@@ -19,7 +17,7 @@ public class MainApplication {
 		 * Process and verify input arguments
 		 * Usage: reconcile -file [file1] -to [IP address of computer 2]
 		 */
-		
+
 		if(!((args.length == 4) && (args[0].contentEquals("-file") || args[2].contentEquals("-to")))) {
 			System.out.println("Error, invalid parameters");
 			System.out.println("Usage: reconcile -file [file1] -to [IP address of computer 2]");
@@ -30,61 +28,66 @@ public class MainApplication {
 			System.out.println("Error: Invalid input file:\t" + args[1]);
 			return;
 		}
-		
+
 		try {
 			ipAddress = InetAddress.getByName(args[3]);
 		} catch (UnknownHostException e) {
 			System.out.println("Error: Could not resolve IP:\t" + args[3]);
 			return;
 		}
-		
+
 		System.out.println("Input File:\t" + inputFile.getPath());
-		
-		if (SendReceive.serverListening(ipAddress, destPort)){
+
+		if (SendReceive.receiverListening(ipAddress)){
 			System.out.println("Connected IP Address:\t" + ipAddress.toString());
 			timer.start();
-			try {
-				Socket localSocket = new Socket(ipAddress, destPort);
-				
-				bandwidthUsed = SendReceive.sendFile(inputFile, localSocket);
-				
-				localSocket.close();
-				
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			ArrayList<String> my =  new ArrayList<String>();
+			my.add("Hello");
+			my.add("from");
+			my.add("client");
+			
+			SendReceive.senderSend(my, ipAddress);
+			ArrayList<String> myReceived = SendReceive.senderReceive();
+			
+			System.out.println("Client received : "+myReceived);
+			my.clear();
+			my.add("How");
+			my.add("are");
+			my.add("you?");
+			
+			SendReceive.senderSend(my, ipAddress);
+			myReceived = SendReceive.senderReceive();
+			System.out.println("Client received : "+myReceived);
+			bandwidthUsed = SendReceive.getSenderBandwidth();
 			
 		}else{
-			//server is not listening
-			//become server
-			try{
-				//start listening and wait for connection    
-				ServerSocket listenSocket = new ServerSocket(destPort);
+			//receiver is not listening
+			//become receiver
+			//start listening and wait for connection    
 
-				System.out.println("Server started, awaiting connection...");
-				Socket clientSocket = listenSocket.accept();//First connection is a dummy connection
-                
+			System.out.println("Server started, awaiting connection...");
+			SendReceive.receiverAccept();//wait for connection
+			timer.start();
 
-				clientSocket = listenSocket.accept();//this is a blocking call
-				timer.start();
+			ArrayList<String> receiverReceived =  new ArrayList<String>();
+			ArrayList<String> mySend = new ArrayList<String>();
+			
+			receiverReceived = SendReceive.receiverReceive();
+			System.out.println("Server received : "+receiverReceived);
+		    mySend.add("I");
+		    mySend.add("am");
+		    mySend.add("server");
+			SendReceive.receiverSend(mySend);
 
-				System.out.println("Connected IP Address:\t" + clientSocket.getInetAddress().getHostAddress());
-				//The accept method waits until a client starts up and requests a connection.
-				
-				bandwidthUsed = SendReceive.receiveFile(inputFile, clientSocket);
-				
-				listenSocket.close();
-				clientSocket.close();
-				
-			}
-			catch(IOException e) {
-				System.out.println("Listen :"+e.getMessage());
-			}			
+			receiverReceived = SendReceive.receiverReceive();
+			System.out.println("Server received : "+receiverReceived);
+			mySend.clear();
+			mySend.add("I am great!");
+			mySend.add(" Good Bye");
+			SendReceive.receiverSend(mySend);
+			bandwidthUsed = SendReceive.getReceiverBandwidth();
 
 		}
-				
 
 		timer.stop();
 		
