@@ -4,6 +4,7 @@ package ec504project.application;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
@@ -13,6 +14,8 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+
+
 
 public class SendReceive {
 	private static int destPort = 8888;
@@ -48,9 +51,8 @@ public class SendReceive {
 		
 	}
 
-	public static  ArrayList<String> receiverReceive(){
-		ArrayList<String> receivedList = new ArrayList<String>();
-
+	public static  ArrayList<fileListElement> receiverReceive(){
+        ArrayList<fileListElement> receivedList = new ArrayList<fileListElement>();
 		try {
 			if (serverSocket == null){
 				serverSocket = new ServerSocket(destPort);
@@ -63,7 +65,7 @@ public class SendReceive {
 			Object object = objectInput.readObject();
 			receiverBandwidth = receiverBandwidth + objectInput.readInt();
 			    
-                receivedList =  (ArrayList<String>) object;        
+                receivedList =  (ArrayList<fileListElement>) object;        
 		} catch (IOException e) {
 			System.out.println("Error during serverReceive.");
 			e.printStackTrace();
@@ -77,7 +79,7 @@ public class SendReceive {
 	}
 
 
-	public static void receiverSend(ArrayList<String> sendList){
+	public static void receiverSend(ArrayList<fileListElement> sendList){
 		try {
 			DataOutputStream os = new DataOutputStream(new BufferedOutputStream(server.getOutputStream()));
 			ObjectOutputStream out = new ObjectOutputStream(os);
@@ -97,12 +99,12 @@ public class SendReceive {
 	}
 
 
-	public static  ArrayList<String> senderReceive(){
-		ArrayList<String> receivedList = new ArrayList<String>();;
+	public static  ArrayList<fileListElement> senderReceive(){
+		ArrayList<fileListElement> receivedList = new ArrayList<fileListElement>();
 		try {
 			ObjectInputStream objectInput = new ObjectInputStream(new BufferedInputStream(client.getInputStream()));
 			Object object = objectInput.readObject();
-            receivedList =  (ArrayList<String>) object;
+            receivedList =  (ArrayList<fileListElement>) object;
 	        senderBandwidth = senderBandwidth + objectInput.readInt();
 			client.close();
 
@@ -120,7 +122,7 @@ public class SendReceive {
 	}
 
 
-	public static void senderSend(ArrayList<String> sendList, InetAddress ipAddress){
+	public static void senderSend(ArrayList<fileListElement> sendList, InetAddress ipAddress){
 		try {
 			if ((client == null)||(client.isClosed())){
 				client = new Socket(ipAddress, destPort);

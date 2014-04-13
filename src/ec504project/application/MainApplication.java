@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
+
 public class MainApplication {
 
 
@@ -41,23 +42,15 @@ public class MainApplication {
 		if (SendReceive.receiverListening(ipAddress)){
 			System.out.println("Connected IP Address:\t" + ipAddress.toString());
 			timer.start();
-			ArrayList<String> my =  new ArrayList<String>();
-			my.add("Hello");
-			my.add("from");
-			my.add("client");
 			
-			SendReceive.senderSend(my, ipAddress);
-			ArrayList<String> myReceived = SendReceive.senderReceive();
+			FileObj sendObj = new FileObj(new File(".//SenderTest"));
+			ArrayList<fileListElement> receivedList = new ArrayList<fileListElement>();
+			SendReceive.senderSend(sendObj.fileList, ipAddress);
 			
-			System.out.println("Client received : "+myReceived);
-			my.clear();
-			my.add("How");
-			my.add("are");
-			my.add("you?");
+			receivedList = SendReceive.senderReceive();
 			
-			SendReceive.senderSend(my, ipAddress);
-			myReceived = SendReceive.senderReceive();
-			System.out.println("Client received : "+myReceived);
+			System.out.println("Client received : "+receivedList);
+			
 			bandwidthUsed = SendReceive.getSenderBandwidth();
 			
 		}else{
@@ -69,22 +62,13 @@ public class MainApplication {
 			SendReceive.receiverAccept();//wait for connection
 			timer.start();
 
-			ArrayList<String> receiverReceived =  new ArrayList<String>();
-			ArrayList<String> mySend = new ArrayList<String>();
+			FileObj sendObj = new FileObj(new File(".//ReceiverTest"));
+			ArrayList<fileListElement> receivedList = new ArrayList<fileListElement>();		
 			
-			receiverReceived = SendReceive.receiverReceive();
-			System.out.println("Server received : "+receiverReceived);
-		    mySend.add("I");
-		    mySend.add("am");
-		    mySend.add("server");
-			SendReceive.receiverSend(mySend);
-
-			receiverReceived = SendReceive.receiverReceive();
-			System.out.println("Server received : "+receiverReceived);
-			mySend.clear();
-			mySend.add("I am great!");
-			mySend.add(" Good Bye");
-			SendReceive.receiverSend(mySend);
+			
+			receivedList = SendReceive.receiverReceive();			
+			System.out.println("Server received : "+receivedList);
+			SendReceive.receiverSend(sendObj.fileList);
 			bandwidthUsed = SendReceive.getReceiverBandwidth();
 
 		}
