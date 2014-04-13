@@ -2,6 +2,7 @@ package ec504project.application;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class FileObj {
 
@@ -17,8 +18,26 @@ public class FileObj {
 		this.fileList = generateFileList(path);
 	}
 	
-	public static ArrayList<fileListElement> generateDiffList(ArrayList<fileListElement> senderList) {
-		return new ArrayList<fileListElement>();
+	public static ArrayList<Integer> generateDiffList(ArrayList<fileListElement> senderList, ArrayList<fileListElement> receiverList) {
+		ArrayList<Integer> DiffList = new ArrayList<Integer>();
+		Collections.sort(senderList, new fileComparator());
+		Collections.sort(receiverList, new fileComparator());
+		
+		for(int ii=0; ii < receiverList.size(); ii++){
+			if(senderList.get(ii).filePath.getName().compareTo(receiverList.get(ii).filePath.getName()) == 0){
+				if(Checksum.verifyChecksum(senderList.get(ii).fileHash, receiverList.get(ii).fileHash) == false){
+					System.out.println("Found a diff! Added to difflist");
+					DiffList.add(ii);
+				}
+				else{
+					System.out.println("Matching file and hash!");
+				}
+			} else{
+				System.out.println("There is a mismatch during filelist diff!");
+			}
+		}
+		
+		return DiffList; 
 	}
 	
 	private ArrayList<fileListElement> generateFileList(File path) {
