@@ -20,35 +20,37 @@ public class MainApplication {
 		long bandwidthUsed = 0;
 		
 		parseArguments(args);
+		FileObj localFileList = new FileObj(inputPath);
+		
 		
 		/***********************
 		* File Reconciler DEMO *
 		***********************/		
-		//Create File Lists
-		FileObj receiverFileList = new FileObj(inputPath);
-		FileObj senderFileList = new FileObj(new File(".\\SenderTest"));
-		
-		//Create Blocks and Hashes
-		ArrayList<FileSummary> fileSummaries = new ArrayList<FileSummary>();
-		for(int i = 0; i < receiverFileList.fileList.size(); i++) {
-			fileSummaries.add(new FileSummary(receiverFileList.fileList.get(i).filePath));
-		}
-		
-		//Match blocks
-		ArrayList<BlockMatcher> blockMatchers = new ArrayList<BlockMatcher>();
-		for(int i = 0; i < fileSummaries.size(); i++) {
-			blockMatchers.add(new BlockMatcher(senderFileList.fileList.get(i).filePath, fileSummaries.get(i).blockHashes, fileSummaries.get(i).blockSize));
-		}
-		
-		//Regenerate the files
-		for(int i = 0; i < blockMatchers.size(); i++) {
-			ReconcileFile.regenerateFile(blockMatchers.get(i).receiverSteps, fileSummaries.get(i).fileBlocks, receiverFileList.fileList.get(i).filePath, senderFileList.fileList.get(i).fileHash);
-		}
-		timer.stop();
-		timer.prettyPrintTime();
-		
-		System.exit(0);
-		
+//		//Create File Lists
+//		FileObj receiverFileList = new FileObj(inputPath);
+//		FileObj senderFileList = new FileObj(new File(".\\SenderTest"));
+//		
+//		//Create Blocks and Hashes
+//		ArrayList<FileSummary> fileSummaries = new ArrayList<FileSummary>();
+//		for(int i = 0; i < receiverFileList.fileList.size(); i++) {
+//			fileSummaries.add(new FileSummary(receiverFileList.fileList.get(i).filePath));
+//		}
+//		
+//		//Match blocks
+//		ArrayList<BlockMatcher> blockMatchers = new ArrayList<BlockMatcher>();
+//		for(int i = 0; i < fileSummaries.size(); i++) {
+//			blockMatchers.add(new BlockMatcher(senderFileList.fileList.get(i).filePath, fileSummaries.get(i).blockHashes, fileSummaries.get(i).blockSize));
+//		}
+//		
+//		//Regenerate the files
+//		for(int i = 0; i < blockMatchers.size(); i++) {
+//			ReconcileFile.regenerateFile(blockMatchers.get(i).receiverSteps, fileSummaries.get(i).fileBlocks, receiverFileList.fileList.get(i).filePath, senderFileList.fileList.get(i).fileHash);
+//		}
+//		timer.stop();
+//		timer.prettyPrintTime();
+//		
+//		System.exit(0);
+//		
 		//Connection is active, become the SENDER(client) and initiate reconciliation.
 		if (SendReceive.serverListening(ipAddress, destPort)){
 			System.out.println("Sender process started.");

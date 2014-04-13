@@ -18,14 +18,14 @@ public class FileObj {
 		this.fileList = generateFileList(path);
 	}
 	
-	public static ArrayList<Integer> generateDiffList(ArrayList<fileListElement> senderList, ArrayList<fileListElement> receiverList) {
+	public ArrayList<Integer> generateDiffList(ArrayList<fileListElement> senderList) {
 		ArrayList<Integer> DiffList = new ArrayList<Integer>();
 		Collections.sort(senderList, new fileComparator());
-		Collections.sort(receiverList, new fileComparator());
+		Collections.sort(fileList, new fileComparator());
 		
-		for(int ii=0; ii < receiverList.size(); ii++){
-			if(senderList.get(ii).filePath.getName().compareTo(receiverList.get(ii).filePath.getName()) == 0){
-				if(Checksum.verifyChecksum(senderList.get(ii).fileHash, receiverList.get(ii).fileHash) == false){
+		for(int ii=0; ii < fileList.size(); ii++){
+			if(senderList.get(ii).filePath.getName().compareTo(fileList.get(ii).filePath.getName()) == 0){
+				if(Checksum.verifyChecksum(senderList.get(ii).fileHash, fileList.get(ii).fileHash) == false){
 					System.out.println("Found a diff! Added to difflist");
 					DiffList.add(ii);
 				}
