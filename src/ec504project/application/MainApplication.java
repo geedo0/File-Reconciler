@@ -9,6 +9,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ec504project.application.BlockMatcher.ReconcileStep;
+import ec504project.application.FileObj.FileListElement;
+import ec504project.application.FileSummary.SenderData;
+
 public class MainApplication {
 	private static int destPort = 8888;
 	
@@ -50,7 +54,7 @@ public class MainApplication {
 //		timer.prettyPrintTime();
 //		
 //		System.exit(0);
-//		
+		
 		//Connection is active, become the SENDER(client) and initiate reconciliation.
 		if (SendReceive.serverListening(ipAddress, destPort)){
 			System.out.println("Sender process started.");
@@ -60,11 +64,22 @@ public class MainApplication {
 				Socket localSocket = new Socket(ipAddress, destPort);
 				
 				//Send file list and wait
+				send(localFileList.fileList);
 				
 				//Perform block matching on file list hashes
+				ArrayList<SenderData> receiverHashes = receiveHashes();
+				ArrayList<BlockMatcher> blockMatchers = new ArrayList<BlockMatcher>();
+				ArrayList<ArrayList<ReconcileStep>> sendSteps = new ArrayList<ArrayList<ReconcileStep>>();
+				for(int i = 0; i < receiverHashes.size(); i++) {
+					blockMatchers.add(new BlockMatcher(localFileList.fileList.get(receiverHashes.get(i).fileIndex).filePath, receiverHashes.get(i).hashes, receiverHashes.get(i).blockSize));
+					sendSteps.add(blockMatchers.get(i).receiverSteps);
+				}
+				
 				//Send reconciliation instructions + data and wait
+				send(sendSteps);
 				
 				//Receive OK status and terminate
+				blockForOk();
 				
 				bandwidthUsed = SendReceive.sendFile(inputPath, localSocket);
 				
@@ -86,13 +101,28 @@ public class MainApplication {
 				System.out.println("Connected IP Address:\t" + clientSocket.getInetAddress().getHostAddress());
 				
 				//Receive file list
+				ArrayList<FileListElement> senderFileList = receiveFileList();
 				//Compare file list
+				ArrayList<Integer> diffList = localFileList.generateDiffList(senderFileList);
 				//Generate hashes for non-matching files
+				ArrayList<FileSummary> fileSummaries = new ArrayList<FileSummary>();
+				ArrayList<SenderData> hashesOnly = new ArrayList<SenderData>(diffList.size());
+				SenderData newData;
+				for(int i = 0; i < diffList.size(); i++) {
+					fileSummaries.add(new FileSummary(localFileList.fileList.get(i).filePath));
+					hashesOnly.add(fileSummaries.get(i).getSenderData(i));
+				}
 				//Send hashes and wait
+				send(hashesOnly);
 				
 				//Reconcile files based on steps
-				//Verify hashes
+				ArrayList<ArrayList<ReconcileStep>> senderSteps = receiveSteps();
+				for(int i = 0; i < diffList.size(); i++) {
+					ReconcileFile.regenerateFile(senderSteps.get(i), fileSummaries.get(i).fileBlocks, localFileList.fileList.get(diffList.get(i)).filePath, senderFileList.get(diffList.get(i)).fileHash);
+				}
+				
 				//Send ok signal and terminate
+				send("ok");
 				
 				bandwidthUsed = SendReceive.receiveFile(inputPath, clientSocket);
 				
@@ -105,6 +135,9 @@ public class MainApplication {
 			}			
 
 		}
+	timer.stop();
+	timer.prettyPrintTime();
+	System.out.println("Bandwidth used:\t" + bandwidthUsed + " bytes");
 	return;
 }
 
