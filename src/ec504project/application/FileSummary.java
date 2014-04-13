@@ -25,6 +25,12 @@ public class FileSummary {
 		public String strongHash;	//MD5 hash
 	}
 	
+	public class SenderData {
+		int fileIndex;
+		int blockSize;
+		HashMap<Integer, HashObject> hashes;
+	}
+	
 	private int computeBlockSize(File input) {
 		//Computes optimal block size based on rsync algorithm.
 		//Replace 5 with the expected number of edits in a file
@@ -105,5 +111,12 @@ public class FileSummary {
 		}
 		return "ERROR HASH";
 	}
-	
+
+	public SenderData getSenderData(int index) {
+		SenderData out = new SenderData();
+		out.fileIndex = index;
+		out.blockSize = this.blockSize;
+		out.hashes = blockHashes;
+		return out;
+	}
 }

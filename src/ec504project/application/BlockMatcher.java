@@ -13,10 +13,10 @@ public class BlockMatcher {
 	private HashMap<Integer, HashObject> receiverHashes;
 	public ArrayList<ReconcileStep> receiverSteps;
 	
-	private long blockSize;
+	private int blockSize;
 	
 	
-	public BlockMatcher(File input, HashMap<Integer, HashObject> receiverHashes, long blockSize) {
+	public BlockMatcher(File input, HashMap<Integer, HashObject> receiverHashes, int blockSize) {
 		this.receiverHashes = receiverHashes;
 		this.blockSize = blockSize;
 		
