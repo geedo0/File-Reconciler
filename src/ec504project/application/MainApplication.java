@@ -3,8 +3,6 @@ package ec504project.application;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,15 +12,14 @@ import ec504project.application.FileObj.FileListElement;
 import ec504project.application.FileSummary.SenderData;
 
 public class MainApplication {
-	private static int destPort = 8888;
-	
+
+
 	private static InetAddress ipAddress;
 	private static File inputPath;
 
 	public static void main(String[] args) {
 		Timer timer = new Timer(true);
 		long bandwidthUsed = 0;
-		
 		parseArguments(args);
 		FileObj localFileList = new FileObj(inputPath);
 		
@@ -56,15 +53,13 @@ public class MainApplication {
 //		System.exit(0);
 		
 		//Connection is active, become the SENDER(client) and initiate reconciliation.
-		if (SendReceive.serverListening(ipAddress, destPort)){
+		if (SendReceive.receiverListening(ipAddress)) {
 			System.out.println("Sender process started.");
 			System.out.println("Connected IP Address:\t" + ipAddress.toString());
 			timer.start();
 			try {
-				Socket localSocket = new Socket(ipAddress, destPort);
-				
 				//Send file list and wait
-				send(localFileList.fileList);
+				SendReceive.senderSend(localFileList.fileList, ipAddress);
 				
 				//Perform block matching on file list hashes
 				ArrayList<SenderData> receiverHashes = receiveHashes();
@@ -91,17 +86,12 @@ public class MainApplication {
 		else {
 			//The connection is not yet active, become the RECEIVE(Server) and await further instructions.
 			try{
-				ServerSocket listenSocket = new ServerSocket(destPort);
 				System.out.println("Receiver process started, awaiting connection...");
-				//First connection is a dummy connection
-				Socket clientSocket = listenSocket.accept();
-				
-				clientSocket = listenSocket.accept();
+				SendReceive.receiverAccept();
 				timer.start();
-				System.out.println("Connected IP Address:\t" + clientSocket.getInetAddress().getHostAddress());
 				
 				//Receive file list
-				ArrayList<FileListElement> senderFileList = receiveFileList();
+				ArrayList<FileListElement> senderFileList = SendReceive.receiverReceive();
 				//Compare file list
 				ArrayList<Integer> diffList = localFileList.generateDiffList(senderFileList);
 				//Generate hashes for non-matching files
@@ -140,6 +130,40 @@ public class MainApplication {
 	System.out.println("Bandwidth used:\t" + bandwidthUsed + " bytes");
 	return;
 }
+/* (SendReceive.receiverListening(ipAddress)){
+			System.out.println("Connected IP Address:\t" + ipAddress.toString());
+			timer.start();
+			
+			FileObj sendObj = new FileObj(new File(".//SenderTest"));
+			ArrayList<fileListElement> receivedList = new ArrayList<fileListElement>();
+			SendReceive.senderSend(sendObj.fileList, ipAddress);
+			
+			receivedList = SendReceive.senderReceive();
+			
+			System.out.println("Client received : "+receivedList);
+			
+			bandwidthUsed = SendReceive.getSenderBandwidth();
+			
+		}else{
+			// receiver is not listening
+			// become receiver
+			// start listening and wait for connection    
+
+			System.out.println("Server started, awaiting connection...");
+			SendReceive.receiverAccept();//wait for connection
+			timer.start();
+
+			FileObj sendObj = new FileObj(new File(".//ReceiverTest"));
+			ArrayList<fileListElement> receivedList = new ArrayList<fileListElement>();		
+			
+			
+			receivedList = SendReceive.receiverReceive();			
+			System.out.println("Server received : "+receivedList);
+			SendReceive.receiverSend(sendObj.fileList);
+			bandwidthUsed = SendReceive.getReceiverBandwidth();
+
+		}
+		*/
 
 	private static void parseArguments(String[] args) {
 		/*

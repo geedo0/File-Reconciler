@@ -1,11 +1,11 @@
 package ec504project.application;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class FileObj {
-
 	class FileListElement {	
 		public File filePath;
 		public String fileHash;
