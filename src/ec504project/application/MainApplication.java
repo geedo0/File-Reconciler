@@ -57,35 +57,35 @@ public class MainApplication {
 			System.out.println("Sender process started.");
 			System.out.println("Connected IP Address:\t" + ipAddress.toString());
 			timer.start();
-			try {
+			//try {
 				//Send file list and wait
 				SendReceive.senderSend(localFileList.fileList, ipAddress);
 				
 				//Perform block matching on file list hashes
-				ArrayList<SenderData> receiverHashes = receiveHashes();
-				ArrayList<BlockMatcher> blockMatchers = new ArrayList<BlockMatcher>();
-				ArrayList<ArrayList<ReconcileStep>> sendSteps = new ArrayList<ArrayList<ReconcileStep>>();
-				for(int i = 0; i < receiverHashes.size(); i++) {
-					blockMatchers.add(new BlockMatcher(localFileList.fileList.get(receiverHashes.get(i).fileIndex).filePath, receiverHashes.get(i).hashes, receiverHashes.get(i).blockSize));
-					sendSteps.add(blockMatchers.get(i).receiverSteps);
-				}
-				
-				//Send reconciliation instructions + data and wait
-				send(sendSteps);
-				
-				//Receive OK status and terminate
-				blockForOk();
-				
-				bandwidthUsed = SendReceive.sendFile(inputPath, localSocket);
-				
-				localSocket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//				ArrayList<SenderData> receiverHashes = receiveHashes();
+//				ArrayList<BlockMatcher> blockMatchers = new ArrayList<BlockMatcher>();
+//				ArrayList<ArrayList<ReconcileStep>> sendSteps = new ArrayList<ArrayList<ReconcileStep>>();
+//				for(int i = 0; i < receiverHashes.size(); i++) {
+//					blockMatchers.add(new BlockMatcher(localFileList.fileList.get(receiverHashes.get(i).fileIndex).filePath, receiverHashes.get(i).hashes, receiverHashes.get(i).blockSize));
+//					sendSteps.add(blockMatchers.get(i).receiverSteps);
+//				}
+//				
+//				//Send reconciliation instructions + data and wait
+//				send(sendSteps);
+//				
+//				//Receive OK status and terminate
+//				blockForOk();
+//				
+//				bandwidthUsed = SendReceive.sendFile(inputPath, localSocket);
+//				
+//				localSocket.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 		}
 		else {
 			//The connection is not yet active, become the RECEIVE(Server) and await further instructions.
-			try{
+		//	try{
 				System.out.println("Receiver process started, awaiting connection...");
 				SendReceive.receiverAccept();
 				timer.start();
@@ -97,32 +97,31 @@ public class MainApplication {
 				//Generate hashes for non-matching files
 				ArrayList<FileSummary> fileSummaries = new ArrayList<FileSummary>();
 				ArrayList<SenderData> hashesOnly = new ArrayList<SenderData>(diffList.size());
-				SenderData newData;
 				for(int i = 0; i < diffList.size(); i++) {
 					fileSummaries.add(new FileSummary(localFileList.fileList.get(i).filePath));
 					hashesOnly.add(fileSummaries.get(i).getSenderData(i));
 				}
 				//Send hashes and wait
-				send(hashesOnly);
+//				send(hashesOnly);
+//				
+//				//Reconcile files based on steps
+//				ArrayList<ArrayList<ReconcileStep>> senderSteps = receiveSteps();
+//				for(int i = 0; i < diffList.size(); i++) {
+//					ReconcileFile.regenerateFile(senderSteps.get(i), fileSummaries.get(i).fileBlocks, localFileList.fileList.get(diffList.get(i)).filePath, senderFileList.get(diffList.get(i)).fileHash);
+//				}
+//				
+//				//Send ok signal and terminate
+//				send("ok");
+//				
+//				bandwidthUsed = SendReceive.receiveFile(inputPath, clientSocket);
+//				
+//				listenSocket.close();
+//				clientSocket.close();
 				
-				//Reconcile files based on steps
-				ArrayList<ArrayList<ReconcileStep>> senderSteps = receiveSteps();
-				for(int i = 0; i < diffList.size(); i++) {
-					ReconcileFile.regenerateFile(senderSteps.get(i), fileSummaries.get(i).fileBlocks, localFileList.fileList.get(diffList.get(i)).filePath, senderFileList.get(diffList.get(i)).fileHash);
-				}
-				
-				//Send ok signal and terminate
-				send("ok");
-				
-				bandwidthUsed = SendReceive.receiveFile(inputPath, clientSocket);
-				
-				listenSocket.close();
-				clientSocket.close();
-				
-			}
-			catch(IOException e) {
-				System.out.println("Listen :"+e.getMessage());
-			}			
+//			}
+//			catch(IOException e) {
+//				System.out.println("Listen :"+e.getMessage());
+//			}			
 
 		}
 	timer.stop();

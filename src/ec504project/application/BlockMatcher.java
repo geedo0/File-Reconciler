@@ -59,8 +59,6 @@ public class BlockMatcher {
 		ArrayList<Byte> literals = new ArrayList<Byte>();
 		ReconcileStep newStep;
 		
-		int lastBlockIndex = (int) (data.length - (data.length % blockSize));
-		
 		for(currentOffset = 0; currentOffset < data.length - intBlockSize; currentOffset++) {
 			match = receiverHashes.get(currentCRC);
 			if(match != null) {
