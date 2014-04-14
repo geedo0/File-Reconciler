@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import ec504project.communication.HashObject;
+
 
 public class BlockMatcher {
 	private HashMap<Integer, HashObject> receiverHashes;

@@ -1,11 +1,14 @@
 package ec504project.application;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
+
+import ec504project.communication.FileListElement;
+import ec504project.communication.Receiver;
+import ec504project.communication.Sender;
+import ec504project.communication.SenderData;
 
 
 public class MainApplication {
@@ -50,16 +53,17 @@ public class MainApplication {
 		//		System.exit(0);
 
 		//Connection is active, become the SENDER(client) and initiate reconciliation.
-		if (SendReceive.receiverListening(ipAddress)) {
+		if (Receiver.Listening(ipAddress)) {
 			System.out.println("Sender process started.");
 			System.out.println("Connected IP Address:\t" + ipAddress.toString());
 			timer.start();
 
 			//Send file list and wait
-			SendReceive.senderSendList(localFileList.fileList, ipAddress);
-
+			Sender.SendList(localFileList.fileList, ipAddress);
+			
 			//Perform block matching on file list hashes
-			ArrayList<SenderData> receiverHashes = SendReceive.senderReceiveHashes();
+			ArrayList<SenderData> receiverHashes = Sender.ReceiveHashes();
+			
 			ArrayList<BlockMatcher> blockMatchers = new ArrayList<BlockMatcher>();
 			ArrayList<ArrayList<ReconcileStep>> sendSteps = new ArrayList<ArrayList<ReconcileStep>>();
 			for(int i = 0; i < receiverHashes.size(); i++) {
@@ -68,22 +72,23 @@ public class MainApplication {
 			}
 
 			//Send reconciliation instructions + data and wait
-			SendReceive.senderSendSteps(sendSteps,ipAddress);
+			Sender.SendSteps(sendSteps,ipAddress);
 
 			//Receive OK status and terminate
-			//blockForOk();
+			Sender.ReceiveOk();
 
-			bandwidthUsed = SendReceive.getSenderBandwidth();
+			bandwidthUsed = Sender.GetBandwidth();
 
 
 		}
 		else {
 			System.out.println("Receiver process started, awaiting connection...");
-			SendReceive.receiverAccept();
+			Receiver.Accept();
 			timer.start();
 
 			//Receive file list
-			ArrayList<FileListElement> senderFileList = SendReceive.receiverReceiveList();
+			ArrayList<FileListElement> senderFileList = Receiver.ReceiveList();
+			
 			//Compare file list
 			ArrayList<Integer> diffList = localFileList.generateDiffList(senderFileList);
 			//Generate hashes for non-matching files
@@ -95,18 +100,18 @@ public class MainApplication {
 				hashesOnly.add(fileSummaries.get(i).getSenderData(i));
 			}
 			//Send hashes and wait
-			SendReceive.receiverSendHashes(hashesOnly);
-
+			Receiver.SendHashes(hashesOnly);			
 			//Reconcile files based on steps
-			ArrayList<ArrayList<ReconcileStep>> senderSteps = SendReceive.receiverReceiveSteps();
+			ArrayList<ArrayList<ReconcileStep>> senderSteps = Receiver.ReceiveSteps();
+			
 			for(int i = 0; i < diffList.size(); i++) {
 				ReconcileFile.regenerateFile(senderSteps.get(i), fileSummaries.get(i).fileBlocks, localFileList.fileList.get(diffList.get(i)).filePath, senderFileList.get(diffList.get(i)).fileHash);
 			}
 
 			//Send ok signal and terminate
-			//send("ok");
+			Receiver.SendOk();
 
-			bandwidthUsed = SendReceive.getReceiverBandwidth();			
+			bandwidthUsed = Receiver.GetBandwidth();			
 
 		}
 		timer.stop();

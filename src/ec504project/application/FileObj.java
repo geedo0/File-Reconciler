@@ -5,6 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import ec504project.communication.FileListElement;
+
 public class FileObj {
 	
 	ArrayList<FileListElement> fileList;

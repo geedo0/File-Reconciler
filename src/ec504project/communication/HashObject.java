@@ -1,4 +1,4 @@
-package ec504project.application;
+package ec504project.communication;
 
 import java.io.Serializable;
 

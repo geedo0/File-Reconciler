@@ -10,6 +10,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ec504project.communication.HashObject;
+import ec504project.communication.SenderData;
+
 public class FileSummary {
 	public ArrayList<byte[]> fileBlocks;
 	public HashMap<Integer, HashObject> blockHashes;
