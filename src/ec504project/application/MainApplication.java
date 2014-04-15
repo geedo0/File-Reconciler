@@ -13,9 +13,8 @@ import ec504project.application.FileSummary.SenderData;
 
 public class MainApplication {
 
-
 	private static InetAddress ipAddress;
-	private static File inputPath;
+	public static File inputPath;
 
 	public static void main(String[] args) {
 		Timer timer = new Timer(true);
