@@ -96,8 +96,8 @@ public class MainApplication {
 			ArrayList<SenderData> hashesOnly = new ArrayList<SenderData>(diffList.size());
 			SenderData newData;
 			for(int i = 0; i < diffList.size(); i++) {
-				fileSummaries.add(new FileSummary(localFileList.fileList.get(i).filePath));
-				hashesOnly.add(fileSummaries.get(i).getSenderData(i));
+				fileSummaries.add(new FileSummary(localFileList.fileList.get(diffList.get(i)).filePath));
+				hashesOnly.add(fileSummaries.get(i).getSenderData(diffList.get(i)));
 			}
 			//Send hashes and wait
 			Receiver.SendHashes(hashesOnly);			
