@@ -66,7 +66,7 @@ public class BlockMatcher {
 					if(!literals.isEmpty()) {
 						newStep = new ReconcileStep();
 						newStep.step = Instruction.insertData;
-						newStep.data = literals;
+						newStep.data = ReconcileFile.arrayListToByteArray(literals);
 						steps.add(newStep);
 						literals = new ArrayList<Byte>();
 					}
@@ -98,7 +98,7 @@ public class BlockMatcher {
 		//Because these blocks are trivial in size, I really don't care to spend the time trying to match the end piece of the file so let's just send over a carbon copy.
 		newStep = new ReconcileStep();
 		newStep.step = Instruction.insertData;
-		newStep.data = literals;
+		newStep.data = ReconcileFile.arrayListToByteArray(literals);
 		steps.add(newStep);		
 		
 		return steps;

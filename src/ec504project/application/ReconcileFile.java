@@ -20,7 +20,7 @@ public class ReconcileFile {
 				currentStep = steps.get(i);
 				switch(currentStep.step) {
 				case insertData:
-					fos.write(arrayListToByteArray(currentStep.data));
+					fos.write(currentStep.data);
 					break;
 				case insertBlock:
 					fos.write(blocks.get(currentStep.blockIndex));
@@ -43,7 +43,7 @@ public class ReconcileFile {
 		}
 	}
 	
-	private static byte[] arrayListToByteArray(ArrayList<Byte> input) {
+	public static byte[] arrayListToByteArray(ArrayList<Byte> input) {
 		byte[] output = new byte[input.size()];
 		for(int i = 0; i < input.size(); i++) {
 			output[i] = input.get(i);

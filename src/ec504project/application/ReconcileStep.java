@@ -7,6 +7,6 @@ import ec504project.application.BlockMatcher.Instruction;
 
 public class ReconcileStep implements Serializable{
 	Instruction step;
-	ArrayList<Byte> data = null;
+	byte[] data;
 	int blockIndex = -1;
 }
