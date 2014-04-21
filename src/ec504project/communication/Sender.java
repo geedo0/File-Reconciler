@@ -26,6 +26,7 @@ public class Sender {
 	}	
 	
 
+	@SuppressWarnings("unchecked")
 	public static  ArrayList<SenderData> ReceiveHashes(){
 		ArrayList<SenderData> receivedList = new ArrayList<SenderData>();
 		try {

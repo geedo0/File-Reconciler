@@ -67,6 +67,7 @@ public class FileSummary {
 				else
 					buffer = new byte[blockSize];
 			}
+			bis.close();
 			
 		} catch (IOException e) {
 				// TODO Auto-generated catch block

@@ -57,8 +57,6 @@ public class BlockMatcher {
 		ReconcileStep newStep;
 		int index;
 		
-		int lastBlockIndex = (int) (data.length - (data.length % blockSize));
-		
 		for(currentOffset = 0; currentOffset < data.length - intBlockSize; currentOffset++) {
 			possibleMatches = receiverHashes.get(currentCRC);
 			if(possibleMatches != null) {
