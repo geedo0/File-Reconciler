@@ -6,4 +6,5 @@ import java.io.Serializable;
 public class FileListElement implements Serializable {	
 	public File filePath;
 	public String fileHash;
+	public boolean fileMatch;
 }

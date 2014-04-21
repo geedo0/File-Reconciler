@@ -12,13 +12,13 @@ import ec504project.communication.HashObject;
 
 
 public class BlockMatcher {
-	private HashMap<Integer, HashObject> receiverHashes;
+	private HashMap<Integer, ArrayList<HashObject>> receiverHashes;
 	public ArrayList<ReconcileStep> receiverSteps;
 	
 	private int blockSize;
 	
 	
-	public BlockMatcher(File input, HashMap<Integer, HashObject> receiverHashes, int blockSize) {
+	public BlockMatcher(File input, HashMap<Integer, ArrayList<HashObject>> receiverHashes, int blockSize) {
 		this.receiverHashes = receiverHashes;
 		this.blockSize = blockSize;
 		
@@ -51,18 +51,17 @@ public class BlockMatcher {
 		int currentCRC = FileSummary.computeAdler32(data, blockSize);
 		int intBlockSize = (int) blockSize;
 		int currentOffset = 0;	//CurrentOffset + intBlockSize = end index
-		HashObject match;
+		ArrayList<HashObject> possibleMatches;
 		String localHash;
 		ArrayList<Byte> literals = new ArrayList<Byte>();
 		ReconcileStep newStep;
-		
-		int lastBlockIndex = (int) (data.length - (data.length % blockSize));
+		int index;
 		
 		for(currentOffset = 0; currentOffset < data.length - intBlockSize; currentOffset++) {
-			match = receiverHashes.get(currentCRC);
-			if(match != null) {
+			possibleMatches = receiverHashes.get(currentCRC);
+			if(possibleMatches != null) {
 				localHash = FileSummary.computeStrongHash(Arrays.copyOfRange(data, currentOffset, currentOffset + intBlockSize));
-				if(localHash.equals(match.strongHash)) {
+				if((index = searchStrongHash(possibleMatches, localHash)) > -1) {
 					if(!literals.isEmpty()) {
 						newStep = new ReconcileStep();
 						newStep.step = Instruction.insertData;
@@ -73,7 +72,7 @@ public class BlockMatcher {
 					
 					newStep = new ReconcileStep();
 					newStep.step = Instruction.insertBlock;
-					newStep.blockIndex = match.blockIndex;
+					newStep.blockIndex = possibleMatches.get(index).blockIndex;
 					steps.add(newStep);
 					
 					currentOffset += intBlockSize;
@@ -129,5 +128,12 @@ public class BlockMatcher {
 		return retVal;
 	}
 	
-	
+	private int searchStrongHash(ArrayList<HashObject> list, String hash) {
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i).strongHash.contentEquals(hash)) {
+				return i;
+			}
+		}
+		return -1;
+	}
 }

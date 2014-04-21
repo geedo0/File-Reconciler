@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 public class Timer {
 		private long startTime;
 		private long endTime = -99999;
+		public long nanosecondsElapsed;
 		
 		Timer(boolean startImmediately) {
 			if(startImmediately)
@@ -24,7 +25,7 @@ public class Timer {
 				System.out.println("Timer has not ended!");
 				return;
 			}
-			long nanosecondsElapsed = endTime - startTime;
+			nanosecondsElapsed = endTime - startTime;
 			long min = TimeUnit.NANOSECONDS.toMinutes(nanosecondsElapsed);
 			long s = TimeUnit.NANOSECONDS.toSeconds(nanosecondsElapsed) % 60;
 			long ms = TimeUnit.NANOSECONDS.toMillis(nanosecondsElapsed) % 1_000;

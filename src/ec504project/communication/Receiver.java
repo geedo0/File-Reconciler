@@ -47,6 +47,7 @@ public class Receiver {
 		
 	}
 
+	@SuppressWarnings("unchecked")
 	public static  ArrayList<FileListElement> ReceiveList(){
         ArrayList<FileListElement> receivedList = new ArrayList<FileListElement>();
 		try {
@@ -115,6 +116,7 @@ public class Receiver {
 	}		
 	
 
+	@SuppressWarnings("unchecked")
 	public static  ArrayList<ArrayList<ReconcileStep>> ReceiveSteps(){
 		ArrayList<ArrayList<ReconcileStep>> receivedList = new ArrayList<ArrayList<ReconcileStep>>();
 		try {

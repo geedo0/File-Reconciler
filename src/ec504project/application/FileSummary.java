@@ -15,17 +15,13 @@ import ec504project.communication.SenderData;
 
 public class FileSummary {
 	public ArrayList<byte[]> fileBlocks;
-	public HashMap<Integer, HashObject> blockHashes;
+	public HashMap<Integer, ArrayList<HashObject>> blockHashes;
 	public int blockSize;
 	
 	public FileSummary(File input) {
 		fileBlocks = createBlocks(input);
 		blockHashes = computeHashes(fileBlocks);
 	}
-	
-
-	
-
 	
 	private int computeBlockSize(File input) {
 		//Computes optimal block size based on rsync algorithm.
@@ -78,17 +74,26 @@ public class FileSummary {
 		return blocks;
 	}
 	
-	private HashMap<Integer, HashObject> computeHashes(ArrayList<byte[]> blocks) {
-		HashMap<Integer, HashObject> hashes = new HashMap<Integer, HashObject>();
+	private HashMap<Integer, ArrayList<HashObject>> computeHashes(ArrayList<byte[]> blocks) {
+		HashMap<Integer, ArrayList<HashObject>> hashes = new HashMap<Integer, ArrayList<HashObject>>();
 		HashObject newHash;
 		int weakHash;
+		ArrayList<HashObject> temp;
 		for(int i = 0; i < blocks.size(); i++) {
-			
 			newHash = new HashObject();
 			newHash.blockIndex = i;
 			newHash.strongHash = computeStrongHash(blocks.get(i));
 			weakHash = computeAdler32(blocks.get(i), blockSize);
-			hashes.put(weakHash, newHash);
+			if((temp = hashes.get(weakHash)) == null) {
+				//Key is not in the hash map
+				temp = new ArrayList<HashObject>();
+				temp.add(newHash);
+				hashes.put(weakHash, temp);
+			}
+			else {
+				//We have a collision append to the entry
+				hashes.get(weakHash).add(newHash);
+			}
 		}
 		return hashes;
 	}
