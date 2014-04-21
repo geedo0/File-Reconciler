@@ -84,12 +84,12 @@ public class BlockMatcher {
 				}
 				else {
 					literals.add(data[currentOffset]);
-					currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC);					
+					currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC,intBlockSize);					
 				}
 			}
 			else {
 				literals.add(data[currentOffset]);
-				currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC);
+				currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC,intBlockSize);
 			}
 		}
 		//Add in the remaining data
@@ -112,19 +112,21 @@ public class BlockMatcher {
 		return array;
 	}
 	
-	private int computeRollingAdler32(byte out, byte in, int currentChecksum) {
-		int A = currentChecksum >> 16;
-		int B = currentChecksum & 0x0000ffff;
+	public static int computeRollingAdler32(byte out, byte in, int currentChecksum, int blocksize) {
 		
-		A -= out;
-		A += in;
-		B -= blockSize * out;
-		B += A;
-		B &= 0xffff;
+		int addlerMod = 65521;
 		
-		A <<= 16;
+		int A = currentChecksum & 0x0000FFFF;
+		int B = (currentChecksum >> 16) & 0x0000FFFF;
 		
-		return A | B;
+		
+		A =  (A - out + in-1) % addlerMod;
+		B =  (B -(blocksize*out) + A-1) % addlerMod;
+		
+		int retVal = (int) ((B << 16) | A);
+		
+		//Return format: [B 31:16][A 15:0]
+		return retVal;
 	}
 	
 	
