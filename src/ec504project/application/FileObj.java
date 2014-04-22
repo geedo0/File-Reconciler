@@ -86,15 +86,25 @@ public class FileObj {
 	private ArrayList<FileListElement> generateFileList(File path) {
 		ArrayList<FileListElement> list = new ArrayList<FileListElement>();
 		FileListElement listElement;
-		File[] filesInPath = path.listFiles();
 		
-		for(int i = 0; i < filesInPath.length; i++)
-		{
+		if(path.isFile()) {
 			listElement = new FileListElement();
-			listElement.fileHash = Checksum.calcChecksum(filesInPath[i].getAbsolutePath());
-			listElement.filePath = filesInPath[i];
+			listElement.fileHash = Checksum.calcChecksum(path.getAbsolutePath());
+			listElement.filePath = path;
 			
 			list.add(listElement);
+		}
+		else if(path.isDirectory()) {
+			File[] filesInPath = path.listFiles();
+			
+			for(int i = 0; i < filesInPath.length; i++)
+			{
+				listElement = new FileListElement();
+				listElement.fileHash = Checksum.calcChecksum(filesInPath[i].getAbsolutePath());
+				listElement.filePath = filesInPath[i];
+				
+				list.add(listElement);
+			}
 		}
 		return list;
 	}
