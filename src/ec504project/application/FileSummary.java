@@ -30,13 +30,14 @@ public class FileSummary {
 	}
 	
 	//Computes a single block of the Adler-32 Hash
-	public static int computeAdler32(byte[] data, long length) {
-		int A = 1;
-		int B = 0;
+	public static int computeAdler32(byte[] data, int length) {
+		long A = 1;
+		long B = 0;
 		
-		int addlerMod = 65521;
+		int addlerMod = 65536;
 		for(int i = 0; i < length; i++) {
-	        A = (A + data[i]) % addlerMod;
+			A = (A + ((byte)data[i] & 0xFF));
+	        A = A % addlerMod;
 	        B = (B + A) % addlerMod;
 		}
 

@@ -113,14 +113,20 @@ public class BlockMatcher {
 	
 	public static int computeRollingAdler32(byte out, byte in, int currentChecksum, int blocksize) {
 		
-		int addlerMod = 65521;
+		int addlerMod = 65536;
 		
-		int A = currentChecksum & 0x0000FFFF;
-		int B = (currentChecksum >> 16) & 0x0000FFFF;
+		long A = currentChecksum & 0x0000FFFF;
+		long B = (currentChecksum >>> 16) & 0x0000FFFF;
+		
+		int unsigned_out = ((byte)out) & 0xFF;
+		int unsigned_in  = ((byte)in) & 0xFF;
 		
 		
-		A =  (A - out + in-1) % addlerMod;
-		B =  (B -(blocksize*out) + A-1) % addlerMod;
+		A =  (A - unsigned_out + unsigned_in) % addlerMod;
+		B =  (B -(blocksize*unsigned_out) + A-1) % addlerMod;
+		
+		A &= 0xffff;
+		B &= 0xffff;
 		
 		int retVal = (int) ((B << 16) | A);
 		
