@@ -14,12 +14,12 @@ import ec504project.communication.HashObject;
 import ec504project.communication.SenderData;
 
 public class FileSummary {
-	public ArrayList<byte[]> fileBlocks;
 	public HashMap<Integer, ArrayList<HashObject>> blockHashes;
 	public int blockSize;
 	
 	public FileSummary(File input) {
-		fileBlocks = createBlocks(input);
+		blockSize = computeBlockSize(input);
+		ArrayList<byte[]> fileBlocks = createBlocks(input, blockSize);
 		blockHashes = computeHashes(fileBlocks);
 	}
 	
@@ -47,22 +47,21 @@ public class FileSummary {
 		return retVal;
 	}
 	
-	private ArrayList<byte[]> createBlocks(File input) {
-		blockSize = computeBlockSize(input);
-		long numBlocks = input.length() / blockSize;
+	public static ArrayList<byte[]> createBlocks(File input, int size) {
+		long numBlocks = input.length() / size;
 		int tmp = 0;
 		
 		ArrayList<byte[]> blocks = new ArrayList<byte[]>((int) numBlocks + 1);
 		try {
-			byte[] buffer = new byte[blockSize];
+			byte[] buffer = new byte[size];
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(input));
 			
 			while((tmp = bis.read(buffer)) > 0) {
 				blocks.add(buffer);
-				if(tmp != blockSize)
+				if(tmp != size)
 					break;
 				else
-					buffer = new byte[blockSize];
+					buffer = new byte[size];
 			}
 			bis.close();
 			
