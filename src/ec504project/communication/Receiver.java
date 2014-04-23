@@ -41,8 +41,9 @@ public class Receiver {
           
 
 		} catch (IOException e) {
-			System.out.println("Error during serverAccept.");
+			System.out.println("Error during Receiver.Accept.");
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		
 	}
@@ -64,11 +65,13 @@ public class Receiver {
 			    
                 receivedList =  (ArrayList<FileListElement>) object;        
 		} catch (IOException e) {
-			System.out.println("Error during serverReceive.");
+			System.out.println("Error during Receiver.ReceiveList.");
 			e.printStackTrace();
+			System.exit(-1);
 		} catch (ClassNotFoundException e) {
-			System.out.println("Error with the ArrayList in serverReceive");
+			System.out.println("Error with the ArrayList in Receiver.ReceiveList");
 			e.printStackTrace();
+			System.exit(-1);
 		}
 
 		return receivedList;
@@ -90,8 +93,9 @@ public class Receiver {
 
 
 		} catch (IOException e) {
-			System.out.println("Error during serverReceive.");
+			System.out.println("Error during Receiver.SendHashes.");
 			e.printStackTrace();
+			System.exit(-1);
 		}		
 
 	}
@@ -109,8 +113,9 @@ public class Receiver {
 
 
 		} catch (IOException e) {
-			System.out.println("Error during serverReceive.");
+			System.out.println("Error during Receiver.SendOk.");
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		
 	}		
@@ -133,11 +138,13 @@ public class Receiver {
 			    
                 receivedList =  (ArrayList<ArrayList<ReconcileStep>>) object;        
 		} catch (IOException e) {
-			System.out.println("Error during serverReceive.");
+			System.out.println("Error during Receiver.ReceiveSteps.");
 			e.printStackTrace();
+			System.exit(-1);
 		} catch (ClassNotFoundException e) {
-			System.out.println("Error with the ArrayList in serverReceive");
+			System.out.println("Error with the ArrayList in Receiver.ReceiveSteps");
 			e.printStackTrace();
+			System.exit(-1);
 		}
 
 		return receivedList;
@@ -162,7 +169,10 @@ public class Receiver {
 		{
 			if(s != null)
 				try {s.close();}
-			catch(Exception e){}
+			catch(Exception e){
+				System.out.println("Error during Receiver.Listening");
+				System.exit(-1);
+			}
 		}
 	}
 
