@@ -49,28 +49,21 @@ public class FileObj {
 
 			if(index == -1){
 				System.out.println("File "+senderList.get(ii).filePath.getName()+" does not exist locally!!");
-				if(senderList.get(ii).filePath.length() <= 5){
-					System.out.println("File size= "+senderList.get(ii).filePath.length());
-					System.out.println("Adding file locally: "+myPath+File.separator+
-							senderList.get(ii).filePath.getName());
-					
-					f=new File(myPath+File.separator+
-							senderList.get(ii).filePath.getName());
-					try {
-						f.createNewFile();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					//System.out.println("myPath= "+senderList.get(ii).filePath.getPath()+"!!");
-					FileObj receiverFileList = new FileObj(myPath);
-					receiverFileList.generateDiffList(senderList);
-					System.exit(3);
+				System.out.println("File size= "+senderList.get(ii).filePath.length());
+				System.out.println("Adding file locally: "+myPath+File.separator+
+						senderList.get(ii).filePath.getName());
+				
+				f=new File(myPath+File.separator+
+						senderList.get(ii).filePath.getName());
+				try {
+					f.createNewFile();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-				else{
-					System.err.println("Error, file: '"+senderList.get(ii).filePath.getName()+
-							" cannot be added to the list");
-					System.exit(-1);
-				}
+				//System.out.println("myPath= "+senderList.get(ii).filePath.getPath()+"!!");
+				FileObj receiverFileList = new FileObj(myPath);
+				receiverFileList.generateDiffList(senderList);
+				System.exit(3);
 			}
 		}
 		
