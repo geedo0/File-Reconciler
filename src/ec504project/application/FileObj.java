@@ -60,10 +60,8 @@ public class FileObj {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				//System.out.println("myPath= "+senderList.get(ii).filePath.getPath()+"!!");
 				FileObj receiverFileList = new FileObj(myPath);
 				receiverFileList.generateDiffList(senderList);
-				System.exit(3);
 			}
 		}
 		
