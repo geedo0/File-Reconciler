@@ -21,7 +21,7 @@ public class FileObj {
 		int index = 0;
 		
 		if(senderList.size() == 0){
-			for(int jj=fileList.size(); jj > 0; jj--){				
+			for(int jj=fileList.size()-1; jj >= 0; jj--){				
 				System.out.println("Removing file: "+ fileList.get(jj).filePath);
 				fileList.get(jj).filePath.delete();
 			}
