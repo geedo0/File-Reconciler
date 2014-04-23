@@ -25,13 +25,18 @@ public class MainApplication {
 		 * Usage: reconcile -path [path to reconcile] -to [IP address of other computer]
 		 */
 
-		if(!((args.length == 4) && (args[0].contentEquals("-path") || args[2].contentEquals("-to")))) {
+		if(!((args.length == 4) && (args[0].contentEquals("-path") || args[0].contentEquals("-file") 
+			|| args[2].contentEquals("-to")))) {
 			System.out.println("Error, invalid parameters");
-			System.out.println("Usage: reconcile -path [path] -to [IP address of other computer]");
+			System.out.println("Usage: reconcile -path/-file [path/file] -to [IP address of other computer]");
 			System.exit(-1);
 		}
 		inputPath = new File(args[1]);
-		if(!inputPath.isDirectory()) {
+		if(args[0].contentEquals("-file") && !inputPath.isFile()){
+			System.out.println("Error: Invalid input file:\t" + args[1] + "\nCheck that you have passed a file and that it exists.");
+			System.exit(-1);
+		}
+		else if(args[0].contentEquals("-path") && !inputPath.isDirectory()) {
 			System.out.println("Error: Invalid input path:\t" + args[1] + "\nCheck that you have passed a directory and that it exists.");
 			System.exit(-1);
 		}
@@ -43,6 +48,6 @@ public class MainApplication {
 			System.exit(-1);
 		}
 
-		System.out.println("Reconciliation Directory:\t" + inputPath.getPath());
+		System.out.println("Reconciliation Directory/file:\t" + inputPath.getPath());
 	}
 }

@@ -14,12 +14,12 @@ import ec504project.communication.HashObject;
 import ec504project.communication.SenderData;
 
 public class FileSummary {
-	public ArrayList<byte[]> fileBlocks;
 	public HashMap<Integer, ArrayList<HashObject>> blockHashes;
 	public int blockSize;
 	
 	public FileSummary(File input) {
-		fileBlocks = createBlocks(input);
+		blockSize = computeBlockSize(input);
+		ArrayList<byte[]> fileBlocks = createBlocks(input, blockSize);
 		blockHashes = computeHashes(fileBlocks);
 	}
 	
@@ -30,42 +30,38 @@ public class FileSummary {
 	}
 	
 	//Computes a single block of the Adler-32 Hash
-	public static int computeAdler32(byte[] data, long length) {
-		long A = 0;
+	public static int computeAdler32(byte[] data, int length) {
+		long A = 1;
 		long B = 0;
 		
-		long addlerMod = 65_536;
+		int addlerMod = 65536;
 		for(int i = 0; i < length; i++) {
-			if(i >= data.length)
-				A += 0;
-			else
-				A += data[i];
-			B += A;
+			A = (A + ((byte)data[i] & 0xFF));
+	        A = A % addlerMod;
+	        B = (B + A) % addlerMod;
 		}
-		A %= addlerMod;
-		B %= addlerMod;
-		int retVal = (int) ((A << 16) | B);
+
+		int retVal = (int) ((B << 16) | A);
 		
-		//Return format: [A 31:16][B 15:0]
+		//Return format: [B 31:16][A 15:0]
 		return retVal;
 	}
 	
-	private ArrayList<byte[]> createBlocks(File input) {
-		blockSize = computeBlockSize(input);
-		long numBlocks = input.length() / blockSize;
+	public static ArrayList<byte[]> createBlocks(File input, int size) {
+		long numBlocks = input.length() / size;
 		int tmp = 0;
 		
 		ArrayList<byte[]> blocks = new ArrayList<byte[]>((int) numBlocks + 1);
 		try {
-			byte[] buffer = new byte[blockSize];
+			byte[] buffer = new byte[size];
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(input));
 			
 			while((tmp = bis.read(buffer)) > 0) {
 				blocks.add(buffer);
-				if(tmp != blockSize)
+				if(tmp != size)
 					break;
 				else
-					buffer = new byte[blockSize];
+					buffer = new byte[size];
 			}
 			bis.close();
 			
@@ -73,6 +69,7 @@ public class FileSummary {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 		}
+				
 		
 		return blocks;
 	}

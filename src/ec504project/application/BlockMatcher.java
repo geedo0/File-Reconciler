@@ -83,12 +83,12 @@ public class BlockMatcher {
 				}
 				else {
 					literals.add(data[currentOffset]);
-					currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC);					
+					currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC,intBlockSize);					
 				}
 			}
 			else {
 				literals.add(data[currentOffset]);
-				currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC);
+				currentCRC = computeRollingAdler32(data[currentOffset], data[currentOffset + intBlockSize], currentCRC,intBlockSize);
 			}
 		}
 		//Add in the remaining data
@@ -111,19 +111,27 @@ public class BlockMatcher {
 		return array;
 	}
 	
-	private int computeRollingAdler32(byte out, byte in, int currentChecksum) {
-		int A = currentChecksum >> 16;
-		int B = currentChecksum & 0x0000ffff;
+	public static int computeRollingAdler32(byte out, byte in, int currentChecksum, int blocksize) {
 		
-		A -= out;
-		A += in;
-		B -= blockSize * out;
-		B += A;
+		int addlerMod = 65536;
+		
+		long A = currentChecksum & 0x0000FFFF;
+		long B = (currentChecksum >>> 16) & 0x0000FFFF;
+		
+		int unsigned_out = ((byte)out) & 0xFF;
+		int unsigned_in  = ((byte)in) & 0xFF;
+		
+		
+		A =  (A - unsigned_out + unsigned_in) % addlerMod;
+		B =  (B -(blocksize*unsigned_out) + A-1) % addlerMod;
+		
+		A &= 0xffff;
 		B &= 0xffff;
 		
-		A <<= 16;
+		int retVal = (int) ((B << 16) | A);
 		
-		return A | B;
+		//Return format: [B 31:16][A 15:0]
+		return retVal;
 	}
 	
 	private int searchStrongHash(ArrayList<HashObject> list, String hash) {

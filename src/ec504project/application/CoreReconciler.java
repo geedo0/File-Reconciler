@@ -97,8 +97,10 @@ public class CoreReconciler {
 			ArrayList<ArrayList<ReconcileStep>> senderSteps = Receiver.ReceiveSteps();
 			waiting = false;
 			System.out.println("Reconciling files.");
+			ArrayList<byte[]> blocks;
 			for(int i = 0; i < diffList.size(); i++) {
-				ReconcileFile.regenerateFile(senderSteps.get(i), fileSummaries.get(i).fileBlocks, localFileList.fileList.get(diffList.get(i)).filePath, senderFileList.get(diffList.get(i)).fileHash);
+				blocks = FileSummary.createBlocks(localFileList.fileList.get(diffList.get(i)).filePath , fileSummaries.get(i).blockSize);
+				ReconcileFile.regenerateFile(senderSteps.get(i), blocks, localFileList.fileList.get(diffList.get(i)).filePath, senderFileList.get(diffList.get(i)).fileHash);
 			}
 
 			//Send ok signal and terminate
