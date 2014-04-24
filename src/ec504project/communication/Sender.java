@@ -38,11 +38,13 @@ public class Sender {
 
 
 		} catch (IOException e) {
-			System.out.println("Error during clientReceive.");
+			System.out.println("Error during Sender.ReceiveHashes.");
 			e.printStackTrace();
+			System.exit(-1);
 		} catch (ClassNotFoundException e) {
-			System.out.println("Error with the ArrayList in clientReceive");
+			System.out.println("Error with the ArrayList in Sender.ReceiveHashes");
 			e.printStackTrace();
+			System.exit(-1);
 		}
 
 		return receivedList;
@@ -64,8 +66,9 @@ public class Sender {
 			Bandwidth = Bandwidth + os.size();
 
 		} catch (IOException e) {
-			System.out.println("Error during clientSend.");
+			System.out.println("Error during Sender.SendList.");
 			e.printStackTrace();
+			System.exit(-1);
 		}		
 
 	}
@@ -84,8 +87,9 @@ public class Sender {
 			Bandwidth = Bandwidth + os.size();
 
 		} catch (IOException e) {
-			System.out.println("Error during clientSend.");
+			System.out.println("Error during Sender.SendSteps.");
 			e.printStackTrace();
+			System.exit(-1);
 		}		
 		
 		
@@ -99,8 +103,9 @@ public class Sender {
 			client.close();
             System.out.println("Received from receiver = "+receivedMessage);
 		} catch (IOException e) {
-			System.out.println("Error during clientReceive.");
+			System.out.println("Error during Sender.ReceiveOk.");
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		
 	}	
