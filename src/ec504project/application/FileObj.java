@@ -1,6 +1,7 @@
 package ec504project.application;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -17,8 +18,9 @@ public class FileObj {
 	
 	public ArrayList<Integer> generateDiffList(ArrayList<FileListElement> senderList) {
 		ArrayList<Integer> DiffList = new ArrayList<Integer>();
-		File f;
+		byte dataToWrite = (byte) 12345; 
 		int index = 0;
+		boolean restart = false;
 		
 		if(senderList.size() == 0){
 			if(fileList.size() > 0){
@@ -53,15 +55,15 @@ public class FileObj {
 				System.out.println("Adding file locally: "+myPath+File.separator+
 						senderList.get(ii).filePath.getName());
 				
-				f=new File(myPath+File.separator+
-						senderList.get(ii).filePath.getName());
 				try {
-					f.createNewFile();
+					FileOutputStream out = new FileOutputStream(myPath+File.separator+senderList.get(ii).filePath.getName());
+					out.write(dataToWrite);
+					out.close();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				FileObj receiverFileList = new FileObj(myPath);
-				receiverFileList.generateDiffList(senderList);
+				DiffList.add(ii);
+				restart = true;
 			}
 		}
 		
@@ -72,8 +74,11 @@ public class FileObj {
 			}
 		}
 		
+		if(restart == true){
+			fileList = generateFileList(myPath);
+		}
+		return DiffList;
 		
-		return DiffList; 
 	}
 
 	private ArrayList<FileListElement> generateFileList(File path) {
