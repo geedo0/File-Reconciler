@@ -22,6 +22,19 @@ public class FileObj {
 		int index = 0;
 		boolean restart = false;
 		
+		if(myPath.isFile() && senderList.size() > 1){
+			System.out.println("ERROR: Mismatch between comparing file and directory");
+			System.exit(-1);
+		}
+		
+		if(myPath.isFile()){
+			if(myPath.getName() != senderList.get(0).filePath.getName())
+			{
+				System.out.println("ERROR: Files names do not match!");
+				System.exit(-1);
+			}
+		}
+		
 		if(senderList.size() == 0){
 			if(fileList.size() > 0){
 				for(int jj=fileList.size()-1; jj >= 0; jj--){				
@@ -52,8 +65,7 @@ public class FileObj {
 			if(index == -1){
 				System.out.println("File "+senderList.get(ii).filePath.getName()+" does not exist locally!!");
 				System.out.println("File size= "+senderList.get(ii).filePath.length());
-				System.out.println("Adding file locally: "+myPath+File.separator+
-						senderList.get(ii).filePath.getName());
+				System.out.println("Adding file locally: "+myPath+File.separator+senderList.get(ii).filePath.getName());
 				
 				try {
 					FileOutputStream out = new FileOutputStream(myPath+File.separator+senderList.get(ii).filePath.getName());
@@ -100,7 +112,6 @@ public class FileObj {
 				listElement = new FileListElement();
 				listElement.fileHash = Checksum.calcChecksum(filesInPath[i].getAbsolutePath());
 				listElement.filePath = filesInPath[i];
-				
 				list.add(listElement);
 			}
 		}
