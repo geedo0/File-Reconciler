@@ -21,6 +21,7 @@ public class FileObj {
 		byte dataToWrite = (byte) 12345; 
 		int index = 0;
 		boolean restart = false;
+		boolean success = false;
 		
 		if(myPath.isFile() && senderList.size() > 1){
 			System.out.println("ERROR: Mismatch between comparing file and directory");
@@ -28,7 +29,7 @@ public class FileObj {
 		}
 		
 		if(myPath.isFile()){
-			if(myPath.getName() != senderList.get(0).filePath.getName())
+			if(!myPath.getName().equals(senderList.get(0).filePath.getName()))
 			{
 				System.out.println("ERROR: Files names do not match!");
 				System.exit(-1);
@@ -37,7 +38,7 @@ public class FileObj {
 		
 		if(senderList.size() == 0){
 			if(fileList.size() > 0){
-				for(int jj=fileList.size()-1; jj >= 0; jj--){				
+				for(int jj=fileList.size()-1; jj >= 0; jj--){	
 					System.out.println("Removing file: "+ fileList.get(jj).filePath);
 					fileList.get(jj).filePath.delete();
 				}
@@ -53,6 +54,9 @@ public class FileObj {
 			index = fileSearch(senderList.get(ii).filePath.getName(),fileList);
 			if (index >= 0){
 				fileList.get(index).fileMatch = true;
+				if(senderList.get(index).filePath.isDirectory()){
+					break;
+				}
 				if(Checksum.verifyChecksum(senderList.get(ii).fileHash, fileList.get(index).fileHash) == false){
 					System.out.println("Found a diff! Added "+ senderList.get(ii).filePath.getName() +  " to difflist");
 					DiffList.add(ii);
@@ -62,27 +66,45 @@ public class FileObj {
 				}
 			} 
 
-			if(index == -1){
-				System.out.println("File "+senderList.get(ii).filePath.getName()+" does not exist locally!!");
-				System.out.println("File size= "+senderList.get(ii).filePath.length());
-				System.out.println("Adding file locally: "+myPath+File.separator+senderList.get(ii).filePath.getName());
-				
-				try {
-					FileOutputStream out = new FileOutputStream(myPath+File.separator+senderList.get(ii).filePath.getName());
-					out.write(dataToWrite);
-					out.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+			if(index == -1){				
+				if(senderList.get(ii).filePath.isFile()){
+					System.out.println("File "+senderList.get(ii).filePath.getName()+" does not exist locally!!");
+					System.out.println("File size= "+senderList.get(ii).filePath.length());
+					System.out.println("Adding file locally: "+myPath+File.separator+senderList.get(ii).filePath.getName());
+					try {
+						FileOutputStream out = new FileOutputStream(myPath+File.separator+senderList.get(ii).filePath.getName());
+						out.write(dataToWrite);
+						out.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					DiffList.add(ii);
+					restart = true;
 				}
-				DiffList.add(ii);
-				restart = true;
+				else if(senderList.get(ii).filePath.isDirectory()){
+					System.out.println("Folder "+senderList.get(ii).filePath.getName()+" does not exist locally!!");
+					System.out.println("Adding folder locally: "+myPath+File.separator+senderList.get(ii).filePath.getName());
+					success = (new File(myPath+File.separator+senderList.get(ii).filePath.getName())).mkdirs();
+					if (!success) {
+						System.out.println("Error: Could not create directory");
+					    System.exit(-1);
+					}
+					restart = true;	
+				}
 			}
 		}
 		
 		for(int jj=fileList.size()-1; jj >= 0; jj--){
 			if(fileList.get(jj).fileMatch == false){
-				System.out.println("Removing file: "+ fileList.get(jj).filePath);
-				fileList.get(jj).filePath.delete();
+				if(fileList.get(jj).filePath.isFile()){
+					System.out.println("Removing file: "+ fileList.get(jj).filePath);
+					fileList.get(jj).filePath.delete();
+				}
+				else if(fileList.get(jj).filePath.isDirectory()){
+					System.out.println("Removing folder: "+ fileList.get(jj).filePath);
+					deleteFolder(fileList.get(jj).filePath);
+				}
+				
 			}
 		}
 		
@@ -110,7 +132,9 @@ public class FileObj {
 			for(int i = 0; i < filesInPath.length; i++)
 			{
 				listElement = new FileListElement();
-				listElement.fileHash = Checksum.calcChecksum(filesInPath[i].getAbsolutePath());
+				if(filesInPath[i].isFile()){
+					listElement.fileHash = Checksum.calcChecksum(filesInPath[i].getAbsolutePath());
+				}
 				listElement.filePath = filesInPath[i];
 				list.add(listElement);
 			}
@@ -128,6 +152,20 @@ public class FileObj {
 			}
 		}
 		return -1;
+	}
+	
+	private static void deleteFolder(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolder(f);
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    folder.delete();
 	}
 	
 }
