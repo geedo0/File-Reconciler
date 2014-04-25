@@ -29,7 +29,7 @@ public class FileObj {
 		}
 		
 		if(myPath.isFile()){
-			if(myPath.getName() != senderList.get(0).filePath.getName())
+			if(!myPath.getName().equals(senderList.get(0).filePath.getName()))
 			{
 				System.out.println("ERROR: Files names do not match!");
 				System.exit(-1);
