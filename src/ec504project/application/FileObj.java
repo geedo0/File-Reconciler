@@ -39,7 +39,6 @@ public class FileObj {
 		if(senderList.size() == 0){
 			if(fileList.size() > 0){
 				for(int jj=fileList.size()-1; jj >= 0; jj--){	
-					System.out.println("Removing file: "+ fileList.get(jj).filePath);
 					fileList.get(jj).filePath.delete();
 				}
 			}
@@ -58,19 +57,14 @@ public class FileObj {
 					break;
 				}
 				if(Checksum.verifyChecksum(senderList.get(ii).fileHash, fileList.get(index).fileHash) == false){
-					System.out.println("Found a diff! Added "+ senderList.get(ii).filePath.getName() +  " to difflist");
 					DiffList.add(ii);
 				}
 				else{
-					System.out.println("Matching file and hash!: "+ senderList.get(ii).filePath.getName());
 				}
 			} 
 
 			if(index == -1){				
 				if(senderList.get(ii).filePath.isFile()){
-					System.out.println("File "+senderList.get(ii).filePath.getName()+" does not exist locally!!");
-					System.out.println("File size= "+senderList.get(ii).filePath.length());
-					System.out.println("Adding file locally: "+myPath+File.separator+senderList.get(ii).filePath.getName());
 					try {
 						FileOutputStream out = new FileOutputStream(myPath+File.separator+senderList.get(ii).filePath.getName());
 						out.write(dataToWrite);
@@ -82,8 +76,6 @@ public class FileObj {
 					restart = true;
 				}
 				else if(senderList.get(ii).filePath.isDirectory()){
-					System.out.println("Folder "+senderList.get(ii).filePath.getName()+" does not exist locally!!");
-					System.out.println("Adding folder locally: "+myPath+File.separator+senderList.get(ii).filePath.getName());
 					success = (new File(myPath+File.separator+senderList.get(ii).filePath.getName())).mkdirs();
 					if (!success) {
 						System.out.println("Error: Could not create directory");
@@ -97,11 +89,9 @@ public class FileObj {
 		for(int jj=fileList.size()-1; jj >= 0; jj--){
 			if(fileList.get(jj).fileMatch == false){
 				if(fileList.get(jj).filePath.isFile()){
-					System.out.println("Removing file: "+ fileList.get(jj).filePath);
 					fileList.get(jj).filePath.delete();
 				}
 				else if(fileList.get(jj).filePath.isDirectory()){
-					System.out.println("Removing folder: "+ fileList.get(jj).filePath);
 					deleteFolder(fileList.get(jj).filePath);
 				}
 				
