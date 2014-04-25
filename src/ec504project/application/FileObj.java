@@ -96,8 +96,15 @@ public class FileObj {
 		
 		for(int jj=fileList.size()-1; jj >= 0; jj--){
 			if(fileList.get(jj).fileMatch == false){
-				System.out.println("Removing file: "+ fileList.get(jj).filePath);
-				fileList.get(jj).filePath.delete();
+				if(fileList.get(jj).filePath.isFile()){
+					System.out.println("Removing file: "+ fileList.get(jj).filePath);
+					fileList.get(jj).filePath.delete();
+				}
+				else if(fileList.get(jj).filePath.isDirectory()){
+					System.out.println("Removing folder: "+ fileList.get(jj).filePath);
+					deleteFolder(fileList.get(jj).filePath);
+				}
+				
 			}
 		}
 		
@@ -145,6 +152,20 @@ public class FileObj {
 			}
 		}
 		return -1;
+	}
+	
+	private static void deleteFolder(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolder(f);
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    folder.delete();
 	}
 	
 }
